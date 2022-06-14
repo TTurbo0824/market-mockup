@@ -5,7 +5,12 @@ const MypageWrapper = styled.div`
 `;
 
 function Mypage() {
-  return <MypageWrapper />;
+  return (
+    <MypageWrapper>
+      <div></div>
+      my page
+    </MypageWrapper>
+  );
 }
 
 export default Mypage;
