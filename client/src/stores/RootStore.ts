@@ -1,12 +1,15 @@
-import CartItemStore from './CartItemStore';
+import ItemStore from './ItemStore';
+import CartStore from './CartStore';
 import UserStore from './UserStore';
 
 export default class RootStore {
   constructor() {
-    this.cartItemStore = new CartItemStore(this);
+    this.itemStore = new ItemStore(this);
+    this.cartStore = new CartStore(this);
     this.userStore = new UserStore(this);
   }
 
-  cartItemStore: CartItemStore;
+  itemStore: ItemStore;
+  cartStore: CartStore;
   userStore: UserStore;
 }
