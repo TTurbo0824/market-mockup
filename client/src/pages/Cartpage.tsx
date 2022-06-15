@@ -83,10 +83,10 @@ function Cartpage() {
             <CartImg src={item.img} />
             <div>{item.itemName}</div>
             <div>{itemQuantity[idx].quantity}</div>
-            <button onClick={() => handlePlus(item.id)}>수량 더하기</button>
             <button onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>
               수량 빼기
             </button>
+            <button onClick={() => handlePlus(item.id)}>수량 더하기</button>
             <button onClick={() => handleDelete(item)}>삭제</button>
           </ItemContainer>
         ))

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
 import ItemCard from '../components/ItemCard';
@@ -8,7 +9,12 @@ const MainpageWrapper = styled.div`
   /* background-color: lime; */
 `;
 
-function Mainpage() {
+export type MainpageProps = {
+  handleModal: (a: any) => void;
+  handleMessage: (a: any) => void;
+};
+
+function Mainpage({ handleModal, handleMessage }: MainpageProps) {
   const { itemStore } = useStores();
   const { cartStore } = useStores();
   const allCartItems = cartStore.getCartItems;
@@ -16,11 +22,16 @@ function Mainpage() {
 
   const handleClick = (item: Item) => {
     if (allCartItems.map((el) => el.id).includes(item.id)) {
-      alert('이미 추가된 상품입니다.');
+      openModal('이미 추가된 상품입니다.');
     } else {
       cartStore.addToCart(item);
-      alert('장바구니에 추가되었습니다.');
+      openModal('장바구니에 추가되었습니다.');
     }
+  };
+
+  const openModal = (message: string) => {
+    handleModal(true);
+    handleMessage(message);
   };
 
   return (
