@@ -13,6 +13,7 @@ export default class CartStore {
     makeAutoObservable(this, {
       addToCart: action,
       removeFromCart: action,
+      removeBulk: action,
       plusQuantity: action,
       minusQuantity: action,
       getCartItems: computed,
@@ -62,6 +63,11 @@ export default class CartStore {
   removeFromCart(item: Item) {
     this.cartItems = this.cartItems.filter((el) => el.id !== item.id);
     this.cartItemQuant = this.cartItemQuant.filter((el) => el.itemId !== item.id);
+  }
+
+  removeBulk(idArr: Number[]) {
+    this.cartItems = this.cartItems.filter((el) => !idArr.includes(el.id));
+    this.cartItemQuant = this.cartItemQuant.filter((el) => !idArr.includes(el.itemId));
   }
 
   plusQuantity(itemId: number) {
