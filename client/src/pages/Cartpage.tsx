@@ -18,6 +18,37 @@ const ItemContainer = styled.div`
   padding: 0.5rem;
 `;
 
+const QuantContainer = styled.div`
+  display: flex;
+  border: 1px solid black;
+  width: fit-content;
+  align-items: center;
+  /* background-color: pink; */
+`;
+
+const QuantBnt = styled.div`
+  padding: 0 0.3rem;
+  width: 0.7rem;
+  text-align: center;
+  line-height: 1.5rem;
+  background-color: lightgray;
+  :first-child {
+    border-right: 1px solid black;
+  }
+  :last-child {
+    border-left: 1px solid black;
+  }
+  :hover {
+    cursor: pointer;
+  }
+`;
+
+const Quant = styled.div`
+  padding: 0 0.4rem;
+  width: 1.25rem;
+  text-align: right;
+`;
+
 function Cartpage() {
   const { cartStore } = useStores();
   const allCartItems = cartStore.getCartItems;
@@ -25,6 +56,9 @@ function Cartpage() {
   const itemIdArr = allCartItems.map((el) => el.id);
 
   const [checkedItems, setCheckedItems] = useState(itemIdArr);
+
+  // console.log('item arr', itemIdArr);
+  // console.log('checked', checkedItems);
 
   const handleAllCheck = (checked: boolean) => {
     setCheckedItems(checked ? itemIdArr : []);
@@ -40,6 +74,11 @@ function Cartpage() {
 
   const handleDelete = (item: Item) => {
     cartStore.removeFromCart(item);
+    window.location.reload();
+  };
+
+  const handleBulkDelete = () => {
+    cartStore.removeBulk(checkedItems);
     window.location.reload();
   };
 
@@ -60,18 +99,32 @@ function Cartpage() {
     };
 
     for (let i = 0; i < itemIdArr.length; i++) {
-      // if ()
+      if (checkedItems.includes(itemIdArr[i])) {
+        let quantity = itemQuantity[i].quantity;
+        let price = Number(allCartItems[i].price) * quantity;
+        total.quantity += quantity;
+        total.price += price;
+      }
     }
+
+    return total;
   };
+
+  const total = getTotalPrice();
 
   return (
     <CartpageWrapper>
-      <input
-        type="checkbox"
-        checked={checkedItems.length === allCartItems.length ? true : false}
-        onChange={(e) => handleAllCheck(e.target.checked)}
-      />
-      <label>전체선택</label>
+      <label>
+        <input
+          type="checkbox"
+          checked={checkedItems.length === allCartItems.length ? true : false}
+          onChange={(e) => handleAllCheck(e.target.checked)}
+        />
+        전체선택
+      </label>
+      <button onClick={handleBulkDelete}>선택삭제</button>
+      <div>전체 수량: {total.quantity}</div>
+      <div>전체 가격: {total.price}</div>
       {allCartItems.length !== 0 ? (
         allCartItems.map((item, idx) => (
           <ItemContainer key={idx}>
@@ -82,11 +135,14 @@ function Cartpage() {
             />
             <CartImg src={item.img} />
             <div>{item.itemName}</div>
-            <div>{itemQuantity[idx].quantity}</div>
-            <button onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>
-              수량 빼기
-            </button>
-            <button onClick={() => handlePlus(item.id)}>수량 더하기</button>
+            <div>{Number(item.price) * itemQuantity[idx].quantity}원</div>
+            <QuantContainer>
+              <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>
+                -
+              </QuantBnt>
+              <Quant>{itemQuantity[idx].quantity}</Quant>
+              <QuantBnt onClick={() => handlePlus(item.id)}>+</QuantBnt>
+            </QuantContainer>
             <button onClick={() => handleDelete(item)}>삭제</button>
           </ItemContainer>
         ))
