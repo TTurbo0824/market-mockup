@@ -16,13 +16,14 @@ export default class CartStore {
       removeBulk: action,
       plusQuantity: action,
       minusQuantity: action,
+      setToBeDeleted: action,
       getCartItems: computed,
       getItemQuant: computed
     });
 
     makePersistable(this, {
       name: 'CartStore',
-      properties: ['cartItems', 'cartItemQuant'],
+      properties: ['cartItems', 'cartItemQuant', 'toBeDeleted'],
       storage: window.localStorage
     });
   }
@@ -55,14 +56,16 @@ export default class CartStore {
     }
   ];
 
+  toBeDeleted: number[] = [];
+
   addToCart(item: Item) {
     this.cartItems = [...this.cartItems, item];
     this.cartItemQuant = [...this.cartItemQuant, { itemId: item.id, quantity: 1 }];
   }
 
-  removeFromCart(item: Item) {
-    this.cartItems = this.cartItems.filter((el) => el.id !== item.id);
-    this.cartItemQuant = this.cartItemQuant.filter((el) => el.itemId !== item.id);
+  removeFromCart(itemId: number) {
+    this.cartItems = this.cartItems.filter((el) => el.id !== itemId);
+    this.cartItemQuant = this.cartItemQuant.filter((el) => el.itemId !== itemId);
   }
 
   removeBulk(idArr: Number[]) {
@@ -82,6 +85,10 @@ export default class CartStore {
       if (el.itemId === itemId) el.quantity -= 1;
       return el;
     });
+  }
+
+  setToBeDeleted(itemArr: number[]) {
+    this.toBeDeleted = [...itemArr];
   }
 
   get getCartItems() {
