@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
 import ItemCard from '../components/ItemCard';
@@ -6,17 +5,27 @@ import { Item } from '../stores/ItemStore';
 import { observer } from 'mobx-react';
 
 const MainpageWrapper = styled.div`
-  /* background-color: lime; */
+  display: flex;
+  justify-content: center;
 `;
 
+const CardContainer = styled.div`
+  width: 70rem;
+  min-width: 70rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+`
+
 export type MainpageProps = {
-  handleModal: (a: any) => void;
-  handleMessage: (a: any) => void;
+  handleMessage: (message: string) => void;
 };
 
-function Mainpage({ handleModal, handleMessage }: MainpageProps) {
+function Mainpage({ handleMessage }: MainpageProps) {
   const { itemStore } = useStores();
   const { cartStore } = useStores();
+
   const allCartItems = cartStore.getCartItems;
   const allItems = itemStore.getItems;
 
@@ -30,15 +39,16 @@ function Mainpage({ handleModal, handleMessage }: MainpageProps) {
   };
 
   const openModal = (message: string) => {
-    handleModal(true);
     handleMessage(message);
   };
 
   return (
     <MainpageWrapper>
-      {allItems.map((item, idx) => (
-        <ItemCard key={idx} item={item} handleClick={handleClick} />
-      ))}
+      <CardContainer>
+        {allItems.map((item, idx) => (
+          <ItemCard key={idx} item={item} handleClick={handleClick} />
+        ))}
+      </CardContainer>
     </MainpageWrapper>
   );
 }
