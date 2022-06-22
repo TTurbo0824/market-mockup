@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { Colors } from '../components/utils/_var';
+import { Colors, priceToString } from '../components/utils/_var';
 import EmptyCart from '../components/EmptyCart';
 
 const CartpageWrapper = styled.div`
-  width: 70rem;
+  width: 65rem;
+  min-height: calc(100vh - 156px);
   display: grid;
   grid-template-areas: 'cart pay';
-  grid-template-columns: 75% 25%;
+  grid-template-columns: 73% 27%;
   margin: 0 auto;
   button,
   input,
@@ -23,7 +24,6 @@ const CartContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  /* background-color: lime; */
 `;
 
 const CheckAll = styled.input`
@@ -35,7 +35,7 @@ const SelDeleteBnt = styled.button`
   border: none;
   text-decoration: underline;
   margin-left: auto;
-  margin-right: 1.25rem;
+  margin-right: 1rem;
   text-align: right;
 `;
 
@@ -92,11 +92,15 @@ const QuantContainer = styled.div`
   align-items: center;
 `;
 
+const Quant = styled.div`
+  padding-right: 0.4rem;
+  width: 1.75rem;
+  text-align: right;
+`;
+
 const QuantBnt = styled.div`
-  padding: 0 0.3rem;
-  width: 0.7rem;
+  width: 1.3rem;
   text-align: center;
-  line-height: 1.5rem;
   :first-child {
     border-right: 1px solid ${Colors.borderColor};
   }
@@ -108,12 +112,6 @@ const QuantBnt = styled.div`
   }
 `;
 
-const Quant = styled.div`
-  padding: 0 0.4rem;
-  width: 1.25rem;
-  text-align: right;
-`;
-
 const PayContainer = styled.div`
   grid-area: pay;
   height: 22rem;
@@ -122,6 +120,7 @@ const PayContainer = styled.div`
   flex-wrap: wrap;
   border: 1px solid ${Colors.lightGray};
   padding: 1.25rem 1rem;
+  margin-left: 0.25rem;
 `;
 
 const TotalQuant = styled.div`
@@ -158,7 +157,6 @@ const SpanContainer = styled.div`
     padding-top: 1rem;
   }
 `;
-
 
 function Cartpage() {
   const { itemStore } = useStores();
@@ -307,7 +305,7 @@ function Cartpage() {
               <DeleteBnt onClick={() => handleModal('개별삭제', [item.id])}>✕</DeleteBnt>
               <NameDiv>{item.itemName}</NameDiv>
               <PriceContainer>
-                <PriceDiv>{item.price * itemQuantity[idx].quantity}원</PriceDiv>
+                <PriceDiv>{priceToString(item.price * itemQuantity[idx].quantity)}원</PriceDiv>
                 <QuantContainer>
                   <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>
                     -
@@ -318,7 +316,9 @@ function Cartpage() {
               </PriceContainer>
             </ItemContainer>
           ))
-        ) : <EmptyCart />}
+        ) : (
+          <EmptyCart />
+        )}
       </CartContainer>
       <PayContainer>
         <TitleSpan>최종 결제금액</TitleSpan>
@@ -329,7 +329,7 @@ function Cartpage() {
         {prices.map((price, idx) => (
           <SpanContainer key={idx}>
             <span>{price.field}</span>
-            {price.amount}원
+            {priceToString(price.amount)}원
           </SpanContainer>
         ))}
         <OrderBnt onClick={handlePayment}>주문하기</OrderBnt>

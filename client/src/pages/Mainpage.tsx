@@ -10,8 +10,8 @@ const MainpageWrapper = styled.div`
 `;
 
 const CardContainer = styled.div`
-  width: 70rem;
-  min-width: 70rem;
+  width: 65rem;
+  min-width: 65rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;

@@ -6,6 +6,7 @@ const HeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 1rem;
+  margin-left: 1.25rem;
 
   ul {
     display: flex;
@@ -14,32 +15,29 @@ const HeaderWrapper = styled.div`
   }
 `;
 
-const Home = styled.div`
-  :hover {
-    cursor: pointer;
-  }
-`
 const NavMenu = styled.li`
+  display: flex;
+  height: fit-content;
   list-style-type: none;
-  margin-left: .5rem;
-  :hover {
-    cursor: pointer;
-  }
+  margin-left: 1rem;
+`;
+
+const HeaderIcon = styled.img`
+  cursor: pointer;
+  width: 1.6rem;
+  height: 1.5rem;
+  vertical-align: middle;
+  margin-bottom: 0.15rem;
+`;
+
+const CartQuant = styled.div`
+  width: 1.5rem;
+  margin-left: 0.5rem;
 `;
 
 function Header() {
   const { cartStore } = useStores();
   const allCart = cartStore.getCartItems;
-
-  // const routes = {
-  //   home: '/',
-  //   mypage: 'mypage',
-  //   cart: 'cart'
-  // };
-
-  // const allMenu = [];
-
-  // for (const key in routes) allMenu.push(key);
 
   const handleRouting = (route: string) => {
     window.location.replace(route);
@@ -47,11 +45,16 @@ function Header() {
 
   return (
     <HeaderWrapper>
-      <Home onClick={() => handleRouting('/')}>home</Home>
+      <HeaderIcon onClick={() => handleRouting('/')} src="../../images/icons/home.png" />
       <nav>
         <ul>
-          <NavMenu onClick={() => handleRouting('/mypage')}>my page</NavMenu>
-          <NavMenu onClick={() => handleRouting('/cart')}>장바구니: {allCart.length}</NavMenu>
+          <NavMenu onClick={() => handleRouting('/mypage')}>
+            <HeaderIcon src="../../images/icons/person.png" />
+          </NavMenu>
+          <NavMenu onClick={() => handleRouting('/cart')}>
+            <HeaderIcon src="../../images/icons/cart.png" />
+            <CartQuant>{allCart.length}</CartQuant>
+          </NavMenu>
         </ul>
       </nav>
     </HeaderWrapper>
