@@ -15,10 +15,10 @@ export const items = [
   },
   {
     id: 2,
-    itemName: 'CGV영화관람권',
-    price: 10000,
-    category: '여행·도서·e쿠폰',
-    img: '../images/items/영화.jpg'
+    itemName: '액체 세제(드럼) 2.7L',
+    price: 370000,
+    category: '식품·생필품',
+    img: '../images/items/세제.jpg'
   },
   {
     id: 3,
@@ -117,5 +117,26 @@ export const items = [
     price: 370000,
     category: '홈데코·문구·취미·반려',
     img: '../images/items/의자.jpg'
+  },
+  {
+    id: 17,
+    itemName: '퍼즐 1000피스',
+    price: 19800,
+    category: '홈데코·문구·취미·반려',
+    img: '../images/items/퍼즐.jpg'
+  },
+  {
+    id: 18,
+    itemName: '산딸기 350g',
+    price: 8900,
+    category: '식품·생필품',
+    img: '../images/items/산딸기.jpg'
+  },
+  {
+    id: 19,
+    itemName: 'CGV영화관람권',
+    price: 10000,
+    category: '여행·도서·e쿠폰',
+    img: '../images/items/영화.jpg'
   }
 ];
