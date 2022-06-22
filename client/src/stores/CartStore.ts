@@ -32,16 +32,16 @@ export default class CartStore {
     {
       id: 0,
       itemName: '크리넥스 3겹 데코 소프트 30m x 30롤',
-      price: '20900',
+      price: 20900,
       category: '식품·생필품',
-      img: '../images/크리넥스.jpg'
+      img: '../images/items/크리넥스.jpg'
     },
     {
       id: 3,
       itemName: '올리브 짜파게티 140g X 20입(박스)',
-      price: '15900',
+      price: 15900,
       category: '식품·생필품',
-      img: '../images/짜파게티.jpg'
+      img: '../images/items/짜파게티.jpg'
     }
   ];
 

@@ -6,7 +6,7 @@ import { items } from '../database/items';
 export interface Item {
   id: number;
   itemName: string;
-  price: string;
+  price: number;
   category: string;
   img: string;
 }
@@ -17,6 +17,13 @@ export interface PaidItem {
   price: number;
   quantity: number;
   img: string;
+}
+
+interface PaidList {
+  id: number;
+  date: string;
+  totalPrice: number;
+  items: PaidItem[]
 }
 
 export default class ItemStore {
@@ -36,7 +43,7 @@ export default class ItemStore {
 
   items = items;
 
-  paidList = [
+  paidList: PaidList[] = [
     {
       id: 0,
       date: '2022-06-15',
@@ -47,7 +54,7 @@ export default class ItemStore {
           itemName: '물티슈 70매 X 10입(박스)',
           price: 14000,
           quantity: 1,
-          img: '../images/물티슈.jpg'
+          img: '../images/items/물티슈.jpg'
         }
       ]
     },
@@ -61,14 +68,14 @@ export default class ItemStore {
           itemName: '무선 게이밍 마우스',
           price: 120000,
           quantity: 1,
-          img: '../images/마우스.jpg'
+          img: '../images/items/마우스.jpg'
         },
         {
           id: 7,
           itemName: '향수 100ml',
           price: 150000,
           quantity: 1,
-          img: '../images/향수.jpg'
+          img: '../images/items/향수.jpg'
         }
       ]
     }
