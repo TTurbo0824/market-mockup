@@ -8,45 +8,39 @@ type ItemProps = {
 };
 
 const Card = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  width: 12rem;
+  width: 65rem;
+  display: grid;
+  grid-template-areas: 'img itemName price cart';
+  grid-template-columns: 15% 45% 20% 20%;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid ${Colors.borderColor};
 `;
 
 const ItemName = styled.div`
-  width: 100%;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-left: 0.5rem;
 `;
 
 const ItemPrice = styled.div`
-  width: 100%;
   text-align: center;
-  margin-bottom: 0.75rem;
 `;
 
 const ItemImg = styled.img`
-  width: 10rem;
-  margin-left: auto;
-  margin-right: auto;
+  width: 7rem;
+  margin-left: 0.75rem;
 `;
 
 const AddBnt = styled.button`
-  width: 95%;
+  cursor: pointer;
+  width: fit-content;
   height: 2rem;
   background-color: white;
   border: 1px solid ${Colors.borderColor};
-  cursor: pointer;
+  justify-self: center;
 `;
 
-function ItemCard({ item, handleClick }: ItemProps) {
+function ItemCardList({ item, handleClick }: ItemProps) {
   return (
     <Card>
       <ItemImg src={item.img} />
@@ -57,4 +51,4 @@ function ItemCard({ item, handleClick }: ItemProps) {
   );
 }
 
-export default ItemCard;
+export default ItemCardList;
