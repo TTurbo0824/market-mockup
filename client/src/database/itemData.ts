@@ -9,14 +9,14 @@ export const items = [
   {
     id: 1,
     itemName: '기프트코드 1만원 / 구글 기프트카드',
-    price: 97500,
+    price: 9750,
     category: '여행·도서·e쿠폰',
     img: '../images/items/구글.jpg'
   },
   {
     id: 2,
     itemName: '액체 세제(드럼) 2.7L',
-    price: 370000,
+    price: 37000,
     category: '식품·생필품',
     img: '../images/items/세제.jpg'
   },
