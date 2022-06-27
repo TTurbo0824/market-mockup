@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
 
-const ModalBackdrop = styled.div`
+export const ModalBackdrop = styled.div`
   position: fixed;
   z-index: 999;
   top: 0;
@@ -34,6 +34,7 @@ const Content = styled.div`
   margin: 1.3rem auto 1rem;
   padding: auto 0.3rem;
   font-size: 1rem;
+  white-space: pre-line;
 `;
 
 const ModalBnt = styled.button`
@@ -46,9 +47,10 @@ const ModalBnt = styled.button`
 
 export type ModalProps = {
   handleModal: () => void;
+  handleSigninModal: () => void;
 };
 
-function Modal({ handleModal }: ModalProps) {
+function Modal({ handleModal, handleSigninModal }: ModalProps) {
   const { modalStore } = useStores();
   const { cartStore } = useStores();
 
@@ -76,6 +78,11 @@ function Modal({ handleModal }: ModalProps) {
     window.location.reload();
   };
 
+  const openSigninModal = () => {
+    handleSigninModal();
+    handleModal();
+  };
+
   return (
     <ModalBackdrop>
       <ModalView>
@@ -89,6 +96,12 @@ function Modal({ handleModal }: ModalProps) {
           <>
             <Content>{message}</Content>
             <ModalBnt onClick={goToMain}>메인으로 이동</ModalBnt>
+            <ModalBnt onClick={handleModal}>닫기</ModalBnt>
+          </>
+        ) : message.includes('로그인') ? (
+          <>
+            <Content>{message}</Content>
+            <ModalBnt onClick={openSigninModal}>로그인</ModalBnt>
             <ModalBnt onClick={handleModal}>닫기</ModalBnt>
           </>
         ) : (

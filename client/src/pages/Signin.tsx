@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { ModalBackdrop } from '../components/Modal';
+import { useStores } from '../stores/Context';
 
 const SigninView = styled.div`
   box-sizing: border-box;
@@ -18,17 +19,48 @@ const SigninView = styled.div`
 `;
 
 type SigninProp = {
-  handleSignin: () => void;
+  handleSigninModal: () => void;
 };
 
-function Signin({ handleSignin }: SigninProp) {
+function Signin({ handleSigninModal }: SigninProp) {
+  const { userStore } = useStores();
+
+  const normalUser = {
+    isAdmin: false,
+    token: 'access_token',
+    id: 0,
+    userName: 'testuser',
+    password: '1234',
+    userStatus: '정상',
+    signupDate: '2022.06.01',
+    dormantDate: null
+  };
+
+  const admin = {
+    isAdmin: true,
+    token: 'access_token',
+    id: 0,
+    userName: 'testuser',
+    password: '1234',
+    userStatus: '정상',
+    signupDate: '2022.06.01',
+    dormantDate: null
+  };
+
+  const handleSignin = (type: string) => {
+    if (type === 'user') userStore.signIn(normalUser);
+    else userStore.signIn(admin);
+
+    window.location.reload();
+  };
+
   return (
     <ModalBackdrop>
       <SigninView>
         signin
-        <button onClick={handleSignin}>닫기</button>
-        <button>로그인</button>
-        <button>회원가입</button>
+        <button onClick={handleSigninModal}>닫기</button>
+        <button onClick={() => handleSignin('user')}>로그인</button>
+        <button onClick={() => handleSignin('admin')}>관리자로 로그인</button>
       </SigninView>
     </ModalBackdrop>
   );

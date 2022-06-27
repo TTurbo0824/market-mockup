@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { Colors, priceToString } from '../components/utils/_var';
+import { Colors, priceToString, getDate } from '../components/utils/_var';
 import EmptyCart from '../components/EmptyCart';
 
 const CartpageWrapper = styled.div`
   width: 65rem;
-  min-height: calc(100vh - 156px);
+  min-height: calc(100vh - 136px);
   display: grid;
   grid-template-areas: 'cart pay';
   grid-template-columns: 73% 27%;
@@ -140,7 +140,6 @@ const OrderBnt = styled.button`
   color: white;
   background-color: ${Colors.blue};
   border: none;
-  margin-top: auto;
 `;
 
 const TitleSpan = styled.span`
@@ -159,6 +158,7 @@ const SpanContainer = styled.div`
 `;
 
 function Cartpage() {
+  const { userStore } = useStores();
   const { itemStore } = useStores();
   const { cartStore } = useStores();
   const { modalStore } = useStores();
@@ -214,12 +214,6 @@ function Cartpage() {
 
   const total = getTotalPrice();
 
-  const getDate = () => {
-    var today = new Date();
-    today.setHours(today.getHours() + 9);
-    return today.toISOString().replace('T', ' ').substring(0, 10);
-  };
-
   const getPaidList = () => {
     const tempList = allCartItems
       .filter((el) => checkedItems.includes(el.id))
@@ -239,7 +233,9 @@ function Cartpage() {
   };
 
   const handlePayment = () => {
-    if (allCartItems.length === 0) {
+    if (userStore.getUserType === 'nonuser') {
+      modalStore.openModal('로그인이 필요합니다.\n로그인 하시겠습니까?');
+    } else if (allCartItems.length === 0) {
       modalStore.openModal('장바구니가 비어있습니다.');
     } else {
       const paidList = getPaidList();

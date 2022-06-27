@@ -36,11 +36,15 @@ const CartQuant = styled.div`
 `;
 
 function Header() {
+  const { userStore } = useStores();
   const { cartStore } = useStores();
+  const { modalStore } = useStores();
   const allCart = cartStore.getCartItems;
 
   const handleRouting = (route: string) => {
-    window.location.replace(route);
+    if (route === '/mypage' && userStore.getUserType === 'nonuser') {
+      modalStore.openModal('로그인이 필요합니다.\n로그인 하시겠습니까?');
+    } else window.location.replace(route);
   };
 
   return (
@@ -48,13 +52,17 @@ function Header() {
       <HeaderIcon onClick={() => handleRouting('/')} src="../../images/icons/home.png" />
       <nav>
         <ul>
-          <NavMenu onClick={() => handleRouting('/mypage')}>
-            <HeaderIcon src="../../images/icons/person.png" />
-          </NavMenu>
-          <NavMenu onClick={() => handleRouting('/cart')}>
-            <HeaderIcon src="../../images/icons/cart.png" />
-            <CartQuant>{allCart.length}</CartQuant>
-          </NavMenu>
+          {userStore.getUserType !== 'admin' ? (
+            <>
+              <NavMenu onClick={() => handleRouting('/mypage')}>
+                <HeaderIcon src="../../images/icons/person.png" />
+              </NavMenu>
+              <NavMenu onClick={() => handleRouting('/cart')}>
+                <HeaderIcon src="../../images/icons/cart.png" />
+                <CartQuant>{allCart.length}</CartQuant>
+              </NavMenu>
+            </>
+          ) : null}
         </ul>
       </nav>
     </HeaderWrapper>
