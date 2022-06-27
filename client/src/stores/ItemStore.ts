@@ -1,7 +1,7 @@
 import { makeAutoObservable, computed, toJS, action } from 'mobx';
 import { makePersistable } from 'mobx-persist-store';
 import RootStore from './RootStore';
-import { items } from '../database/items';
+import { items } from '../database/itemData';
 
 export interface Item {
   id: number;
@@ -9,6 +9,17 @@ export interface Item {
   price: number;
   category: string;
   img: string;
+}
+
+export interface FullItem {
+  id: number;
+  itemName: string;
+  price: number;
+  category: string;
+  img: string;
+  stock: number;
+  status: string;
+  total: number;
 }
 
 export interface PaidItem {
@@ -23,13 +34,14 @@ interface PaidList {
   id: number;
   date: string;
   totalPrice: number;
-  items: PaidItem[]
+  items: PaidItem[];
 }
 
 export default class ItemStore {
   constructor(RootStore: RootStore) {
     makeAutoObservable(this, {
       addToPaidList: action,
+      editItems: action,
       getItems: computed,
       getPaidList: computed
     });
@@ -41,7 +53,7 @@ export default class ItemStore {
     });
   }
 
-  items = items;
+  items: FullItem[] = items;
 
   paidList: PaidList[] = [
     {
@@ -82,11 +94,14 @@ export default class ItemStore {
   ];
 
   addToPaidList(items: PaidItem[], curDate: string, totalPrice: number) {
-    console.log(items);
     this.paidList = [
       ...this.paidList,
       { id: this.paidList.length + 1, date: curDate, totalPrice, items: items }
     ];
+  }
+
+  editItems(itemStock: number[]) {
+    this.items.map((item, idx) => (item.stock = itemStock[idx]));
   }
 
   get getItems() {

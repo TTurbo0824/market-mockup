@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from './stores/Context';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import AdminPage from './pages/AdminPage';
 import Mainpage from './pages/Mainpage';
 import Mypage from './pages/Mypage';
 import Cartpage from './pages/Cartpage';
+import Signin from './pages/Signin';
 import Modal from './components/Modal';
 import styled from 'styled-components';
 
@@ -19,12 +22,14 @@ const FixedContainer = styled.div`
 `;
 
 const SpacingDiv = styled.div`
-  height: 3.5rem;
+  height: 3.75rem;
 `;
 
 function App() {
+  const { userStore } = useStores();
   const { modalStore } = useStores();
   const modalInfo = modalStore.modalInfo;
+  const [openSignin, setOpenSignin] = useState(false);
 
   const handleModal = () => {
     modalStore.closeModal();
@@ -34,16 +39,33 @@ function App() {
     modalStore.openModal(message);
   };
 
+  const handleSigninModal = () => {
+    if (openSignin) setOpenSignin(false);
+    else setOpenSignin(true);
+  };
+
   return (
     <div className="App">
-      {modalInfo.open ? <Modal handleModal={handleModal} /> : null}
       <FixedContainer>
         <Header />
       </FixedContainer>
       <SpacingDiv />
+      {modalInfo.open ? (
+        <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} />
+      ) : null}
+      {openSignin ? <Signin handleSigninModal={handleSigninModal} /> : null}
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Mainpage handleMessage={handleMessage} />} />
+          <Route
+            path="/"
+            element={
+              userStore.getUserType !== 'admin' ? (
+                <Mainpage handleMessage={handleMessage} />
+              ) : (
+                <AdminPage />
+              )
+            }
+          />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/cart" element={<Cartpage />} />
         </Routes>

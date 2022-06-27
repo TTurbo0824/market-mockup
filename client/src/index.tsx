@@ -14,7 +14,7 @@ root.render(
   <React.StrictMode>
     <StoreProvider value={rootStore}>
       <App />
-    </StoreProvider>{' '}
+    </StoreProvider>
   </React.StrictMode>
 );
 
