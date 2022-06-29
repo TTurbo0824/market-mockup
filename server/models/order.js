@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate (models) {
       // define association here
       Order.belongsTo(models.User, {
         onDelete: 'CASCADE',
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     date: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Order',
+    modelName: 'Order'
   });
   return Order;
 };

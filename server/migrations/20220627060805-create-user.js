@@ -17,6 +17,9 @@ module.exports = {
       salt: {
         type: Sequelize.TEXT
       },
+      isAdmin: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

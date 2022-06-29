@@ -8,9 +8,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      cartId: {
-        type: Sequelize.INTEGER
-      },
       userId: {
         type: Sequelize.INTEGER,
         field: 'userId',
@@ -30,9 +27,6 @@ module.exports = {
         onDelete: 'cascade'
       },
       quantity: {
-        type: Sequelize.INTEGER
-      },
-      price: {
         type: Sequelize.INTEGER
       },
       createdAt: {
