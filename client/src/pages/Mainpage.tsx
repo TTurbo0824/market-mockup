@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
 import ItemCardThumb from '../components/ItemCardThumb';
@@ -10,9 +11,11 @@ import { faBorderAll, faListSquares } from '@fortawesome/free-solid-svg-icons';
 import { Colors } from '../components/utils/_var';
 
 const MainpageWrapper = styled.div`
+  min-height: calc(100vh - 136px);
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  align-content: flex-start;
 `;
 
 const CardContainer = styled.div`
@@ -47,9 +50,29 @@ function Mainpage({ handleMessage }: MainpageProps) {
   const { itemStore } = useStores();
   const { cartStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
+  const [isLoading, setIsLoading] = useState(false);
 
   const allCartItems = cartStore.getCartItems;
-  const allItems = itemStore.getItems;
+  const allItems = itemStore.getAllItems;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const result = await axios.get(process.env.REACT_APP_API_URL + '/items');
+        itemStore.importItemList(result.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        if (error instanceof Error) {
+          alert(error.message);
+          setIsLoading(false);
+        } else {
+          console.log(error);
+        }
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleClick = (item: Item) => {
     if (allCartItems.map((el) => el.id).includes(item.id)) {
@@ -83,11 +106,16 @@ function Mainpage({ handleMessage }: MainpageProps) {
         </ViewIcon>
       </ButtonContainer>
       <CardContainer>
-        {allItems.map((item, idx) => {
-          if (viewType === 'thumb') {
-            return <ItemCardThumb key={idx} item={item} handleClick={handleClick} />;
-          } else return <ItemCardList key={idx} item={item} handleClick={handleClick} />;
-        })}
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          allItems &&
+          allItems.map((item, idx) => {
+            if (viewType === 'thumb') {
+              return <ItemCardThumb key={idx} item={item} handleClick={handleClick} />;
+            } else return <ItemCardList key={idx} item={item} handleClick={handleClick} />;
+          })
+        )}
       </CardContainer>
     </MainpageWrapper>
   );
