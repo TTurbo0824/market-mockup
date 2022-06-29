@@ -12,6 +12,11 @@ import Signin from './pages/Signin';
 import Modal from './components/Modal';
 import styled from 'styled-components';
 
+const AppWrapper = styled.div`
+  button {
+    cursor: pointer;
+  }
+`
 const FixedContainer = styled.div`
   position: fixed;
   top: 0;
@@ -45,7 +50,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <AppWrapper>
       <FixedContainer>
         <Header />
       </FixedContainer>
@@ -71,7 +76,7 @@ function App() {
         </Routes>
       </BrowserRouter>
       <Footer />
-    </div>
+    </AppWrapper>
   );
 }
 

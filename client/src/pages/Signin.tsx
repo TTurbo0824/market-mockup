@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { ModalBackdrop } from '../components/Modal';
 import { useStores } from '../stores/Context';
 
 const SigninView = styled.div`
-  box-sizing: border-box;
   background-color: white;
   position: relative;
   text-align: center;
@@ -18,12 +18,26 @@ const SigninView = styled.div`
   box-shadow: 10px 10px grey;
 `;
 
+const CloseBnt = styled.button`
+  background-color: white;
+  border: none;
+  font-size: 1.25rem;
+`;
+
+const ModeBnt = styled.button`
+  background-color: ${(props) => props.color};
+`;
+
+const SigninInput = styled.input``;
+
 type SigninProp = {
   handleSigninModal: () => void;
 };
 
 function Signin({ handleSigninModal }: SigninProp) {
   const { userStore } = useStores();
+
+  const [mode, setMode] = useState('user');
 
   const normalUser = {
     isAdmin: false,
@@ -53,14 +67,21 @@ function Signin({ handleSigninModal }: SigninProp) {
 
     window.location.reload();
   };
-
+  //
   return (
     <ModalBackdrop>
       <SigninView>
-        signin
-        <button onClick={handleSigninModal}>닫기</button>
-        <button onClick={() => handleSignin('user')}>로그인</button>
-        <button onClick={() => handleSignin('admin')}>관리자로 로그인</button>
+        <ModeBnt onClick={() => setMode('user')} color={mode === 'user' ? 'pink' : 'white'}>
+          일반회원
+        </ModeBnt>
+        <ModeBnt onClick={() => setMode('admin')} color={mode === 'admin' ? 'pink' : 'white'}>
+          관리자
+        </ModeBnt>
+        <CloseBnt onClick={handleSigninModal}>✕</CloseBnt>
+
+        <SigninInput />
+        <SigninInput />
+        <button onClick={() => handleSignin(mode)}>{mode === 'user' ? '로그인' : '관리자로 로그인'}</button>
       </SigninView>
     </ModalBackdrop>
   );

@@ -42,18 +42,22 @@ export default class ItemStore {
     makeAutoObservable(this, {
       addToPaidList: action,
       editItems: action,
+      importItemList: action,
       getItems: computed,
-      getPaidList: computed
+      getPaidList: computed,
+      getAllItems: computed
     });
 
     makePersistable(this, {
       name: 'ItemStore',
-      properties: ['items', 'paidList'],
+      properties: ['items', 'paidList', 'allItems'],
       storage: window.localStorage
     });
   }
 
   items: FullItem[] = items;
+
+  allItems: Item[] = [];
 
   paidList: PaidList[] = [
     {
@@ -93,6 +97,10 @@ export default class ItemStore {
     }
   ];
 
+  importItemList(items: Item[]) {
+    this.allItems = items;
+  }
+
   addToPaidList(items: PaidItem[], curDate: string, totalPrice: number) {
     this.paidList = [
       ...this.paidList,
@@ -106,6 +114,10 @@ export default class ItemStore {
 
   get getItems() {
     return toJS(this.items);
+  }
+
+  get getAllItems() {
+    return toJS(this.allItems)
   }
 
   get getPaidList() {

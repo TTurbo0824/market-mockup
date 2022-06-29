@@ -58,8 +58,7 @@ const CartImg = styled.img`
 const CheckEach = styled.input`
   grid-area: check;
 `;
-
-const DeleteBnt = styled.button`
+ const DeleteBnt = styled.button`
   grid-area: delete;
   background-color: white;
   border: none;

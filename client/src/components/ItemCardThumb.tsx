@@ -49,7 +49,7 @@ const AddBnt = styled.button`
 function ItemCardThumb({ item, handleClick }: ItemProps) {
   return (
     <Card>
-      <ItemImg src={item.img} />
+      <ItemImg src={`../images/items/${item.img}`} />
       <ItemName>{item.itemName}</ItemName>
       <ItemPrice>{priceToString(item.price)}원</ItemPrice>
       <AddBnt onClick={() => handleClick(item)}>장바구니 담기</AddBnt>
