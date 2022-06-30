@@ -49,11 +49,14 @@ export type MainpageProps = {
 function Mainpage({ handleMessage }: MainpageProps) {
   const { itemStore } = useStores();
   const { cartStore } = useStores();
+  const { userStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
   const [isLoading, setIsLoading] = useState(false);
 
   const allCartItems = cartStore.getCartItems;
   const allItems = itemStore.getAllItems;
+
+  const token = userStore.getUserInfo.token;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,8 +69,6 @@ function Mainpage({ handleMessage }: MainpageProps) {
         if (error instanceof Error) {
           alert(error.message);
           setIsLoading(false);
-        } else {
-          console.log(error);
         }
       }
     };
@@ -78,8 +79,33 @@ function Mainpage({ handleMessage }: MainpageProps) {
     if (allCartItems.map((el) => el.id).includes(item.id)) {
       openModal('이미 추가된 상품입니다.');
     } else {
-      cartStore.addToCart(item);
-      openModal('장바구니에 추가되었습니다.');
+      if (!token) {
+        cartStore.addToCart(item);
+        openModal('장바구니에 추가되었습니다.');
+      } else {
+        axios
+          .post(
+            `${process.env.REACT_APP_API_URL}/cart-item`,
+            { itemId: item.id, price: item.price },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true
+            }
+          )
+          .then(() => {
+            cartStore.addToCart(item);
+            openModal('장바구니에 추가되었습니다.');
+          })
+          .catch((error) => {
+            if (error.response.status === 401) {
+              alert(error.response.message);
+            } else {
+            }
+          });
+      }
     }
   };
 

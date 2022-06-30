@@ -5,15 +5,12 @@ require('sequelize-values')(Sequelize);
 
 module.exports = async (req, res) => {
   try {
-    // const accessTokenData = isAuthorized(req);
-    const accessTokenData = { id: req.headers.authorization };
-    console.log(accessTokenData.id);
-
+    const accessTokenData = isAuthorized(req);
+    
     if (!accessTokenData) {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
-    // {"newItems" : [{ "itemId": 2, "quantity": 1 }]}
     const { newItems } = req.body;
 
     const upsert = async (values, condition) => {
@@ -32,7 +29,7 @@ module.exports = async (req, res) => {
         include: [
           {
             model: Item,
-            attributes: ['itemName', 'price']
+            attributes: ['itemName', 'price', 'category', 'img']
           }
         ],
         where: {
@@ -42,15 +39,24 @@ module.exports = async (req, res) => {
 
       cartItems = Sequelize.getValues(cartItems);
 
+      let cartQuant =[...cartItems];
+
+      cartQuant = cartQuant.map((el) => {
+        return {
+          itemId: el.id,
+          quantity: el.quantity
+        }
+      })
       cartItems = cartItems.map((el) => {
         return {
           id: el.id,
           itemName: el.Item.itemName,
-          quantity: el.quantity,
-          price: el.Item.price * el.quantity
+          img: el.Item.img,
+          price: el.Item.price * el.quantity,
+          category: el.Item.category
         };
       });
-      res.status(200).json({ message: 'ok', data: cartItems });
+      res.status(200).json({ message: 'ok', cartItems: cartItems, cartQuant: cartQuant });
     };
 
     const combineItems = async () => {

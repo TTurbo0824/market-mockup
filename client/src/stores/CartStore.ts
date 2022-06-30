@@ -11,6 +11,7 @@ export interface ItemQuant {
 export default class CartStore {
   constructor(RootStore: RootStore) {
     makeAutoObservable(this, {
+      setUpCart: action,
       addToCart: action,
       removeFromCart: action,
       removeBulk: action,
@@ -28,35 +29,16 @@ export default class CartStore {
     });
   }
 
-  cartItems = [
-    {
-      id: 0,
-      itemName: '크리넥스 3겹 데코 소프트 30m x 30롤',
-      price: 20900,
-      category: '식품·생필품',
-      img: '../images/items/크리넥스.jpg'
-    },
-    {
-      id: 3,
-      itemName: '올리브 짜파게티 140g X 20입(박스)',
-      price: 15900,
-      category: '식품·생필품',
-      img: '../images/items/짜파게티.jpg'
-    }
-  ];
+  cartItems: Item[] = [];
 
-  cartItemQuant = [
-    {
-      itemId: 0,
-      quantity: 1
-    },
-    {
-      itemId: 3,
-      quantity: 3
-    }
-  ];
+  cartItemQuant: ItemQuant[] = [];
 
   toBeDeleted: number[] = [];
+
+  setUpCart(items: Item[], cartQuant: ItemQuant[]) {
+    this.cartItems = items;
+    this.cartItemQuant = cartQuant;
+  }
 
   addToCart(item: Item) {
     this.cartItems = [...this.cartItems, item];

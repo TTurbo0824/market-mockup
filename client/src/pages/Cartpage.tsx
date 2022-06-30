@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { Colors, priceToString, getDate } from '../components/utils/_var';
 import EmptyCart from '../components/EmptyCart';
+import axios from 'axios';
 
 const CartpageWrapper = styled.div`
   width: 65rem;
@@ -58,7 +59,7 @@ const CartImg = styled.img`
 const CheckEach = styled.input`
   grid-area: check;
 `;
- const DeleteBnt = styled.button`
+const DeleteBnt = styled.button`
   grid-area: delete;
   background-color: white;
   border: none;
@@ -166,6 +167,8 @@ function Cartpage() {
   const itemIdArr = allCartItems.map((el) => el.id);
   const [checkedItems, setCheckedItems] = useState(itemIdArr);
 
+  const token = userStore.getUserInfo.token;
+
   const handleAllCheck = (checked: boolean) => {
     setCheckedItems(checked ? itemIdArr : []);
   };
@@ -184,13 +187,43 @@ function Cartpage() {
   };
 
   const handlePlus = (id: number) => {
-    cartStore.plusQuantity(id);
+    if (!token) cartStore.plusQuantity(id);
+    else handleQuant('plus', id);
   };
 
   const handleMinus = (id: number, quantity: number) => {
     if (quantity === 1) {
       modalStore.openModal(`확인삭제_${id}`);
-    } else cartStore.minusQuantity(id);
+    } else if (!token) {
+      cartStore.minusQuantity(id);
+    } else {
+      handleQuant('minus', id);
+    }
+  };
+
+  const handleQuant = (type: string, itemId: number) => {
+    axios
+      .patch(
+        `${process.env.REACT_APP_API_URL}/cart-item`,
+        { type, itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      )
+      .then(() => {
+        if (type === 'plus') cartStore.plusQuantity(itemId);
+        else cartStore.minusQuantity(itemId);
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          alert(error.response.message);
+        } else {
+        }
+      });
   };
 
   const getTotalPrice = () => {
@@ -296,7 +329,7 @@ function Cartpage() {
                 onChange={(e) => handleEachCheck(e.target.checked, item.id)}
                 checked={checkedItems.includes(item.id)}
               />
-              <CartImg src={item.img} />
+              <CartImg src={`../images/items/${item.img}`} />
               <DeleteBnt onClick={() => handleModal('개별삭제', [item.id])}>✕</DeleteBnt>
               <NameDiv>{item.itemName}</NameDiv>
               <PriceContainer>

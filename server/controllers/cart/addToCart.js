@@ -11,12 +11,12 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
-    const { itemId, quantity, price } = req.body;
+    const { itemId, price } = req.body;
 
     const payload = {
       userId: accessTokenData.id,
       itemId,
-      quantity,
+      quantity: 1,
       price
     };
 

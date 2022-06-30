@@ -26,10 +26,11 @@ app.get('/', (req, res) => {
 app.get('/items', controllers.items);
 app.post('/signup', controllers.signup);
 app.post('/signin', controllers.signin);
+app.get('/user-info', controllers.getUserInfo);
 app.post('/cart', controllers.getCartItems);
-app.post('/cartItem', controllers.addToCart);
-app.delete('/cartItem', controllers.removeFromCart);
-app.patch('/cartItem', controllers.changeQuant);
+app.post('/cart-item', controllers.addToCart);
+app.delete('/cart-item', controllers.removeFromCart);
+app.patch('/cart-item', controllers.changeQuant);
 
 const HTTPS_PORT = process.env.HTTPS_PORT || 80;
 
