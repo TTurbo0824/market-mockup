@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
-
+import axios from 'axios';
 export const ModalBackdrop = styled.div`
   position: fixed;
   z-index: 999;
@@ -53,6 +53,10 @@ export type ModalProps = {
 function Modal({ handleModal, handleSigninModal }: ModalProps) {
   const { modalStore } = useStores();
   const { cartStore } = useStores();
+  const { userStore } = useStores();
+  const token = userStore.getUserInfo.token;
+
+  console.log(userStore.getUserInfo.token)
 
   const message = modalStore.modalInfo.message;
 
@@ -67,12 +71,35 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
   };
 
   const handleDelete = () => {
+    const idToDelete = [];
     if (message === '개별삭제') {
       cartStore.removeFromCart(cartStore.toBeDeleted[0]);
+      idToDelete.push(cartStore.toBeDeleted[0]);
     } else if (message.includes('확인')) {
       const itemId = Number(message.split('_')[1]);
       cartStore.removeFromCart(itemId);
-    } else cartStore.removeBulk(cartStore.toBeDeleted);
+      idToDelete.push(itemId);
+    } else {
+      cartStore.removeBulk(cartStore.toBeDeleted);
+      idToDelete.push(...cartStore.toBeDeleted);
+    }
+
+    if (token) {
+      axios
+        .delete(`${process.env.REACT_APP_API_URL}/cart-item`, {
+          data: {itemId: idToDelete},
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            alert(error.response.message);
+          }
+        });
+    }
 
     handleModal();
     window.location.reload();
