@@ -1,7 +1,6 @@
 import { makeAutoObservable, computed, toJS, action } from 'mobx';
 import { makePersistable } from 'mobx-persist-store';
 import RootStore from './RootStore';
-import { items } from '../database/itemData';
 
 export interface Item {
   id: number;
@@ -55,7 +54,7 @@ export default class ItemStore {
     });
   }
 
-  items: FullItem[] = items;
+  items: FullItem[] = [];
 
   allItems: Item[] = [];
 

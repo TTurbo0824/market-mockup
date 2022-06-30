@@ -7,7 +7,7 @@ export interface User {
   token: string | null;
   id: number | null;
   userName: string | null;
-  password: string | null;
+  // password: string | null;
   userStatus: string | null;
   signupDate: string | null;
   dormantDate: string | null;
@@ -36,7 +36,6 @@ export default class UserStore {
     token: null,
     id: null,
     userName: null,
-    password: null,
     userStatus: null,
     signupDate: null,
     dormantDate: null
@@ -55,7 +54,6 @@ export default class UserStore {
       token: null,
       id: null,
       userName: null,
-      password: null,
       userStatus: null,
       signupDate: null,
       dormantDate: null

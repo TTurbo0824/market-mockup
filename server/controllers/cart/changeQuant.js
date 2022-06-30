@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
-    const { symbol, itemId } = req.body;
+    const { type, itemId } = req.body;
 
     let curQuant = await Cart.findOne({
       where: {
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
 
     Cart.update(
       {
-        quantity: symbol === 'plus' ? curQuant + 1 : curQuant - 1
+        quantity: type === 'plus' ? curQuant + 1 : curQuant - 1
       },
       {
         where: {
