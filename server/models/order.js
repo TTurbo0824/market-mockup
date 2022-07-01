@@ -13,20 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Order.belongsTo(models.User, {
         onDelete: 'CASCADE',
-        foreignKey: 'orderId'
-      });
-      Order.belongsTo(models.Item, {
-        onDelete: 'CASCADE',
-        foreignKey: 'orderId'
+        foreignKey: 'userId'
       });
     }
   }
   Order.init({
-    orderId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    itemId: DataTypes.INTEGER,
-    quantity: DataTypes.INTEGER,
-    price: DataTypes.INTEGER,
+    totalPrice: DataTypes.INTEGER,
     date: DataTypes.STRING
   }, {
     sequelize,
