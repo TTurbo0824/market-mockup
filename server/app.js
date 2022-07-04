@@ -31,6 +31,8 @@ app.post('/cart', controllers.getCartItems);
 app.post('/cart-item', controllers.addToCart);
 app.delete('/cart-item', controllers.removeFromCart);
 app.patch('/cart-item', controllers.changeQuant);
+app.get('/order', controllers.getOrders);
+app.post('/order', controllers.makeOrder);
 
 const HTTPS_PORT = process.env.HTTPS_PORT || 80;
 
