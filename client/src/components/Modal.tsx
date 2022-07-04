@@ -56,8 +56,6 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
   const { userStore } = useStores();
   const token = userStore.getUserInfo.token;
 
-  console.log(userStore.getUserInfo.token)
-
   const message = modalStore.modalInfo.message;
 
   const goToCart = () => {

@@ -253,8 +253,8 @@ function Cartpage() {
         let tempItem = {
           id: el.id,
           itemName: el.itemName,
-          price: el.price * itemQuantity[checkedItems.indexOf(el.id)].quantity,
-          quantity: itemQuantity[checkedItems.indexOf(el.id)].quantity,
+          price: el.price * itemQuantity[itemIdArr.indexOf(el.id)].quantity,
+          quantity: itemQuantity[itemIdArr.indexOf(el.id)].quantity,
           img: el.img
         };
 
@@ -272,8 +272,25 @@ function Cartpage() {
     } else {
       const paidList = getPaidList();
       const curDate = getDate();
-      itemStore.addToPaidList(paidList, curDate, total.price);
-      handleBulkDelete();
+
+      axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/order`,
+          { newOrders: paidList, curDate },
+          {
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            withCredentials: true
+          }
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            itemStore.addToPaidList(paidList, curDate, total.price);
+            handleBulkDelete();
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 

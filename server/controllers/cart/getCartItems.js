@@ -6,7 +6,7 @@ require('sequelize-values')(Sequelize);
 module.exports = async (req, res) => {
   try {
     const accessTokenData = isAuthorized(req);
-    
+
     if (!accessTokenData) {
       return res.status(401).json({ message: "You're not logged in" });
     }
@@ -39,14 +39,14 @@ module.exports = async (req, res) => {
 
       cartItems = Sequelize.getValues(cartItems);
 
-      let cartQuant =[...cartItems];
+      let cartQuant = [...cartItems];
 
       cartQuant = cartQuant.map((el) => {
         return {
           itemId: el.id,
           quantity: el.quantity
-        }
-      })
+        };
+      });
       cartItems = cartItems.map((el) => {
         return {
           id: el.id,

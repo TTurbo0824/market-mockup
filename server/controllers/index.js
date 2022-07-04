@@ -6,6 +6,7 @@ module.exports = {
   getCartItems: require('./cart/getCartItems'),
   addToCart: require('./cart/addToCart'),
   removeFromCart: require('./cart/removeFromCart'),
-  changeQuant: require('./cart/changeQuant')
-
+  changeQuant: require('./cart/changeQuant'),
+  getOrders: require('./orders/getOrders'),
+  makeOrder: require('./orders/makeOrder')
 };
