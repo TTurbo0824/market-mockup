@@ -13,10 +13,10 @@ module.exports = async (req, res) => {
 
     await Cart.destroy({
       where: {
-        userId: accessTokenData.id,
-        itemId: itemId
+        id: itemId
       }
-    })
+    });
+
     res.status(200).json({ message: 'item removed' });
   } catch (error) {
     console.log(error);
