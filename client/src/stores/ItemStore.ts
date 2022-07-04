@@ -42,6 +42,7 @@ export default class ItemStore {
       addToPaidList: action,
       editItems: action,
       importItemList: action,
+      importPaidList: action,
       getItems: computed,
       getPaidList: computed,
       getAllItems: computed
@@ -58,46 +59,14 @@ export default class ItemStore {
 
   allItems: Item[] = [];
 
-  paidList: PaidList[] = [
-    {
-      id: 0,
-      date: '2022-06-15',
-      totalPrice: 14000,
-      items: [
-        {
-          id: 4,
-          itemName: '물티슈 70매 X 10입(박스)',
-          price: 14000,
-          quantity: 1,
-          img: '../images/items/물티슈.jpg'
-        }
-      ]
-    },
-    {
-      id: 1,
-      date: '2022-06-16',
-      totalPrice: 270000,
-      items: [
-        {
-          id: 6,
-          itemName: '무선 게이밍 마우스',
-          price: 120000,
-          quantity: 1,
-          img: '../images/items/마우스.jpg'
-        },
-        {
-          id: 7,
-          itemName: '향수 100ml',
-          price: 150000,
-          quantity: 1,
-          img: '../images/items/향수.jpg'
-        }
-      ]
-    }
-  ];
+  paidList: PaidList[] = [];
 
   importItemList(items: Item[]) {
     this.allItems = items;
+  }
+
+  importPaidList(list: PaidList[]) {
+    this.paidList = list;
   }
 
   addToPaidList(items: PaidItem[], curDate: string, totalPrice: number) {

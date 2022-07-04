@@ -89,7 +89,7 @@ function Signin({ handleSigninModal }: SigninProp) {
         withCredentials: true
       })
       .then((res) => {
-        if (res.status === 200 || res.status === 201) {
+        if (res.status === 200) {
           return res.data.accessToken;
         }
       })

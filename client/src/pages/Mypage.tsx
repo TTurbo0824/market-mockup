@@ -1,12 +1,14 @@
+import { useState, useEffect } from 'react';
 import { useStores } from '../stores/Context';
 import styled from 'styled-components';
 import { Colors, priceToString } from '../components/utils/_var';
 import MainBnt from '../components/MainBnt';
 import { Indicator } from '../components/EmptyCart';
+import axios from 'axios';
 
 const MypageWrapper = styled.div`
   width: 65rem;
-  min-height: calc(100vh - 156px);
+  min-height: calc(100vh - 136px);
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -87,18 +89,45 @@ const EmptyContainer = styled.div`
 
 function Mypage() {
   const { itemStore } = useStores();
+  const { userStore} = useStores();
+  const token = userStore.getUserInfo.token;
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const result = await axios.get(process.env.REACT_APP_API_URL + '/order',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }});
+        itemStore.importPaidList(result.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        if (error instanceof Error) {
+          alert(error.message);
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchData();
+  }, []);
+
   const paidList = itemStore.getPaidList;
 
   return (
     <MypageWrapper>
       <TitleDiv>주문 내역</TitleDiv>
-      {paidList.length !== 0 ? (
+      {paidList && paidList.length !== 0 ? (
         paidList.reverse().map((el, idx) => (
           <HistoryContainer key={idx}>
             <OrderDate>{el.date} 결제 완료</OrderDate>
             {el.items.map((item, idx) => (
               <ItemContainer key={idx}>
-                <ItemImg src={item.img} />
+                <ItemImg src={`../images/items/${item.img}`} />
                 <ItemName>{item.itemName}</ItemName>
                 <BottomRow>
                   <ItemQuantity>구매수량: {item.quantity}</ItemQuantity>|
