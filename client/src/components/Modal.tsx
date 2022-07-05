@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
-import axios from 'axios';
+import axiosInstance from './utils/axiosInstance';
+
 export const ModalBackdrop = styled.div`
   position: fixed;
   z-index: 999;
@@ -40,9 +41,6 @@ const Content = styled.div`
 const ModalBnt = styled.button`
   margin-left: 0.3rem;
   margin-right: 0.3rem;
-  :hover {
-    cursor: pointer;
-  }
 `;
 
 export type ModalProps = {
@@ -83,20 +81,11 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
     }
 
     if (token) {
-      axios
-        .delete(`${process.env.REACT_APP_API_URL}/cart-item`, {
-          data: {itemId: idToDelete},
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        })
-        .catch((error) => {
-          if (error.response.status === 401) {
-            alert(error.response.message);
-          }
-        });
+      axiosInstance.delete('/cart-item', { data: { itemId: idToDelete } }).catch((error) => {
+        if (error.response.status === 401) {
+          modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+        }
+      });
     }
 
     handleModal();
@@ -106,6 +95,11 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
   const openSigninModal = () => {
     handleSigninModal();
     handleModal();
+  };
+
+  const signout = () => {
+    localStorage.clear();
+    window.location.replace('/');
   };
 
   return (
@@ -127,6 +121,17 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
           <>
             <Content>{message}</Content>
             <ModalBnt onClick={openSigninModal}>로그인</ModalBnt>
+            <ModalBnt onClick={handleModal}>닫기</ModalBnt>
+          </>
+        ) : message.includes('미사용으로') ? (
+          <>
+            <Content>{message}</Content>
+            <ModalBnt onClick={signout}>확인</ModalBnt>
+          </>
+        ) : message.includes('로그아웃') ? (
+          <>
+            <Content>{message}</Content>
+            <ModalBnt onClick={signout}>로그아웃</ModalBnt>
             <ModalBnt onClick={handleModal}>닫기</ModalBnt>
           </>
         ) : (
