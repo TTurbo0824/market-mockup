@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { Colors, priceToString, getDate } from '../components/utils/_var';
 import EmptyCart from '../components/EmptyCart';
-import axios from 'axios';
+import axiosInstance from '../components/utils/axiosInstance';
 
 const CartpageWrapper = styled.div`
   width: 65rem;
@@ -49,6 +49,9 @@ const ItemContainer = styled.div`
   border: 1px solid ${Colors.lightGray};
   margin: 0.75rem 1.25rem 0 0;
   padding: 1rem 0.5rem;
+  :last-of-type {
+    margin-bottom: 1rem;
+  }
 `;
 
 const CartImg = styled.img`
@@ -202,26 +205,17 @@ function Cartpage() {
   };
 
   const handleQuant = (type: string, itemId: number) => {
-    axios
-      .patch(
-        `${process.env.REACT_APP_API_URL}/cart-item`,
-        { type, itemId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
-      )
+    axiosInstance
+      .patch('cart-item', { type, itemId })
       .then(() => {
         if (type === 'plus') cartStore.plusQuantity(itemId);
         else cartStore.minusQuantity(itemId);
       })
       .catch((error) => {
         if (error.response.status === 401) {
-          alert(error.response.message);
+          modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
         } else {
+          modalStore.openModal(error);
         }
       });
   };
@@ -229,7 +223,7 @@ function Cartpage() {
   const getTotalPrice = () => {
     let total = {
       price: 0,
-      quantity: 0
+      quantity: 0,
     };
 
     for (let i = 0; i < itemIdArr.length; i++) {
@@ -255,7 +249,7 @@ function Cartpage() {
           itemName: el.itemName,
           price: el.price * itemQuantity[itemIdArr.indexOf(el.id)].quantity,
           quantity: itemQuantity[itemIdArr.indexOf(el.id)].quantity,
-          img: el.img
+          img: el.img,
         };
 
         return tempItem;
@@ -273,15 +267,8 @@ function Cartpage() {
       const paidList = getPaidList();
       const curDate = getDate();
 
-      axios
-        .post(
-          `${process.env.REACT_APP_API_URL}/order`,
-          { newOrders: paidList, curDate },
-          {
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            withCredentials: true
-          }
-        )
+      axiosInstance
+        .post('/order', { newOrders: paidList, curDate })
         .then((res) => {
           if (res.status === 200) {
             itemStore.addToPaidList(paidList, curDate, total.price);
@@ -289,7 +276,11 @@ function Cartpage() {
           }
         })
         .catch((error) => {
-          console.log(error);
+          if (error.response.status === 401) {
+            modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+          } else {
+            modalStore.openModal(error);
+          }
         });
     }
   };
@@ -310,20 +301,20 @@ function Cartpage() {
   const prices = [
     {
       field: '상품 가격',
-      amount: total.price
+      amount: total.price,
     },
     {
       field: '배송비',
-      amount: deliveryCharge
+      amount: deliveryCharge,
     },
     {
       field: '할인 예상금액',
-      amount: discount
+      amount: discount,
     },
     {
       field: '총 주문금액',
-      amount: finalPrice
-    }
+      amount: finalPrice,
+    },
   ];
 
   return (
@@ -331,7 +322,7 @@ function Cartpage() {
       <CartContainer>
         <label>
           <CheckAll
-            type="checkbox"
+            type='checkbox'
             checked={checkedItems.length === allCartItems.length ? true : false}
             onChange={(e) => handleAllCheck(e.target.checked)}
           />
@@ -342,7 +333,7 @@ function Cartpage() {
           allCartItems.map((item, idx) => (
             <ItemContainer key={idx}>
               <CheckEach
-                type="checkbox"
+                type='checkbox'
                 onChange={(e) => handleEachCheck(e.target.checked, item.id)}
                 checked={checkedItems.includes(item.id)}
               />
@@ -352,9 +343,7 @@ function Cartpage() {
               <PriceContainer>
                 <PriceDiv>{priceToString(item.price * itemQuantity[idx].quantity)}원</PriceDiv>
                 <QuantContainer>
-                  <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>
-                    -
-                  </QuantBnt>
+                  <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>-</QuantBnt>
                   <Quant>{itemQuantity[idx].quantity}</Quant>
                   <QuantBnt onClick={() => handlePlus(item.id)}>+</QuantBnt>
                 </QuantContainer>
