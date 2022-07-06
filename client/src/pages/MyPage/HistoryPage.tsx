@@ -101,11 +101,13 @@ function HistoryPage() {
           itemStore.importPaidList(result.data.data);
           setIsLoading(false);
         });
-      } catch (error: any) {
-        if (error.message.includes('404')) {
-          itemStore.importPaidList([]);
-          setIsLoading(false);
-        } else modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            itemStore.importPaidList([]);
+            setIsLoading(false);
+          } else modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+        }
       }
     };
     fetchData();

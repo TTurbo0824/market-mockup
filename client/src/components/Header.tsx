@@ -1,6 +1,8 @@
-import styled from 'styled-components';
+import { useState } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
+import styled from 'styled-components';
+import { Colors } from './utils/_var';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -35,36 +37,90 @@ const CartQuant = styled.div`
   margin-left: 0.5rem;
 `;
 
+const MenuDiv = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  top: 3rem;
+  right: 2rem;
+  width: 7rem;
+  background-color: white;
+  border: 1px solid ${Colors.borderColor};
+  border-radius: 4px;
+  padding: 0.4rem;
+`;
+
+const MyMenu = styled.button`
+  width: 100%;
+  text-align: center;
+  margin: 0.25rem auto;
+  border: none;
+  background-color: white;
+  font-size: 0.9rem;
+`;
+
 function Header() {
   const { userStore } = useStores();
   const { cartStore } = useStores();
   const { modalStore } = useStores();
   const allCart = cartStore.getCartItems;
 
+  const [showMenu, setShowMenu] = useState(false);
+
+  const myMenu = [
+    {
+      menu: '주문내역',
+      onClick: () => window.location.replace('/history'),
+    },
+    {
+      menu: '회원정보',
+      onClick: () => window.location.replace('/info'),
+    },
+    {
+      menu: '로그아웃',
+      onClick: () => modalStore.openModal('로그아웃하시겠습니까?'),
+    },
+  ];
+
   const handleRouting = (route: string) => {
     if (route === '/mypage' && userStore.getUserType === 'nonuser') {
       modalStore.openModal('로그인이 필요합니다.\n로그인 하시겠습니까?');
-    } else window.location.replace(route);
+    } else if (route === '/mypage') {
+      if (!showMenu) setShowMenu(true);
+      else setShowMenu(false);
+    } else {
+      window.location.replace(route);
+    }
   };
 
   return (
     <HeaderWrapper>
-      <HeaderIcon onClick={() => handleRouting('/')} src="../../images/icons/home.png" />
+      <HeaderIcon onClick={() => handleRouting('/')} src='../../images/icons/home.png' />
       <nav>
         <ul>
           {userStore.getUserType !== 'admin' ? (
             <>
               <NavMenu onClick={() => handleRouting('/mypage')}>
-                <HeaderIcon src="../../images/icons/person.png" />
+                <HeaderIcon src='../../images/icons/person.png' />
               </NavMenu>
               <NavMenu onClick={() => handleRouting('/cart')}>
-                <HeaderIcon src="../../images/icons/cart.png" />
+                <HeaderIcon src='../../images/icons/cart.png' />
                 <CartQuant>{allCart.length}</CartQuant>
               </NavMenu>
             </>
           ) : null}
         </ul>
       </nav>
+      {showMenu ? (
+        <MenuDiv>
+          {myMenu.map((el, idx) => (
+            <MyMenu key={idx} onClick={el.onClick}>
+              {el.menu}
+            </MyMenu>
+          ))}
+        </MenuDiv>
+      ) : null}
     </HeaderWrapper>
   );
 }
