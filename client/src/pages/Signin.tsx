@@ -71,9 +71,7 @@ type SigninProp = {
 };
 
 function Signin({ handleSigninModal }: SigninProp) {
-  const { userStore } = useStores();
-  const { cartStore } = useStores();
-  const { modalStore } = useStores();
+  const { userStore, cartStore, modalStore, itemStore } = useStores();
 
   const baseURL = process.env.REACT_APP_API_URL;
   const [mode, setMode] = useState('user');
@@ -81,63 +79,98 @@ function Signin({ handleSigninModal }: SigninProp) {
     username: '',
     password: '',
   });
+
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     setSigninInfo({ ...signinInfo, [key]: e.target.value });
   };
 
-  const handleSignin = () => {
+  const handleAdminSignin = () => {
     axios
-      .post(`${baseURL}/signin`, signinInfo, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      })
+      .post(
+        `${baseURL}/signin`,
+        { ...signinInfo, type: 'admin' },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         if (res.status === 200) {
-          userStore.signIn({
-            ...userStore.getUserInfo,
-            token: res.data.accessToken,
-            refreshToken: res.data.refreshToken,
-          });
+          console.log(res.data);
+          userStore.signIn(res.data.userInfo);
           return res.data.accessToken;
         }
       })
       .then((token) => {
         axios
-          .get(`${baseURL}/user-info`, {
+          .get(`${baseURL}/admin-items`, {
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           })
           .then((res) => {
-            userStore.signIn({ ...userStore.getUserInfo, ...res.data.data });
-            return res.data.data.token;
-          })
-          .then((token) => {
-            axios
-              .post(
-                `${baseURL}/cart`,
-                { newItems: cartStore.getItemQuant },
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                  },
-                },
-              )
-              .then((res) => {
-                if (res.status === 200) {
-                  cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
-                  handleSigninModal();
-                }
-              });
+            itemStore.importAdminList(res.data.data);
+            handleSigninModal();
+            window.location.replace('/admin');
           });
       })
       .catch((error) => {
-        // console.log(error.response.data.message);
-        if (error.response.data.message === 'please check your password and try again') {
+        if (error.response.data.message === 'not an administrator') {
+          setErrorMsg('등록된 관리자가 아닙니다.');
+        } else if (error.response.data.message === 'please check your password and try again') {
+          setErrorMsg('잘못된 비밀번호입니다.');
+        } else if (error.response.data.message === 'Invalid user') {
+          setErrorMsg('가입된 아이디가 아닙니다.');
+        } else {
+          handleSigninModal();
+          modalStore.openModal(error.response.data.message);
+        }
+      });
+  };
+
+  const handleSignin = () => {
+    axios
+      .post(
+        `${baseURL}/signin`,
+        { ...signinInfo, type: 'user' },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          userStore.signIn(res.data.userInfo);
+          return res.data.accessToken;
+        }
+      })
+      .then((token) => {
+        axios
+          .post(
+            `${baseURL}/cart`,
+            { newItems: cartStore.getItemQuant },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+          .then((res) => {
+            if (res.status === 200) {
+              cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
+              handleSigninModal();
+              window.location.reload();
+            }
+          });
+      })
+      .catch((error) => {
+        if (error.response.data.message === 'not a normal user') {
+          setErrorMsg('관리자 로그인을 이용해주세요.');
+        } else if (error.response.data.message === 'please check your password and try again') {
           setErrorMsg('잘못된 비밀번호입니다.');
         } else if (error.response.data.message === 'Invalid user') {
           setErrorMsg('가입된 아이디가 아닙니다.');
@@ -162,7 +195,9 @@ function Signin({ handleSigninModal }: SigninProp) {
         </ModeContainer>
         <SigninInput placeholder='아이디' onChange={(e) => handleInput(e, 'username')} />
         <SigninInput placeholder='비밀번호' type='password' onChange={(e) => handleInput(e, 'password')} />
-        <SigninBnt onClick={handleSignin}>{mode === 'user' ? '로그인' : '관리자로 로그인'}</SigninBnt>
+        <SigninBnt onClick={mode === 'user' ? handleSignin : handleAdminSignin}>
+          {mode === 'user' ? '로그인' : '관리자로 로그인'}
+        </SigninBnt>
         <ErrorMsg>{errorMsg}</ErrorMsg>
       </SigninView>
     </ModalBackdrop>

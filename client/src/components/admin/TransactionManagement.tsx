@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useStores } from '../../stores/Context';
 import { priceToString } from '../utils/_var';
 import { PageTitle, TableWrapper, Table } from './ItemManagement';
+import axiosInstance from '../utils/axiosInstance';
 
 const TransactionWrapper = styled.div`
   display: flex;
@@ -11,8 +13,32 @@ const TransactionWrapper = styled.div`
 `;
 
 function TransactionManagement() {
-  const { adminStore } = useStores();
+  const { adminStore, modalStore } = useStores();
   const transList = adminStore.getTransList;
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await axiosInstance.get('/admin-transactions');
+        adminStore.importTransList(res.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            adminStore.importTransList([]);
+            setIsLoading(false);
+          } else {
+            modalStore.openModal(error.message);
+            setIsLoading(false);
+          }
+        }
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <TransactionWrapper>
@@ -33,13 +59,13 @@ function TransactionManagement() {
           {transList.map((trans, idx) => (
             <tbody key={idx}>
               <tr>
-                <td>{trans.userName}</td>
-                <td>{trans.transactionId}</td>
+                <td>{trans.username}</td>
+                <td>{trans.id}</td>
                 <td>{trans.status}</td>
                 <td>{priceToString(trans.paymentAmount)}</td>
                 <td>{priceToString(trans.canceledAmount)}</td>
                 <td>{trans.paymentDate}</td>
-                <td>{trans.canceledDate}</td>
+                <td>{trans.canceledDate || '-'}</td>
               </tr>
             </tbody>
           ))}
