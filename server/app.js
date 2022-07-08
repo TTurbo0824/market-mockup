@@ -5,8 +5,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
-
-const controllers = require('./controllers');
+const routers = require('./routes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,20 +18,7 @@ app.use(
 );
 
 app.use(cookieParser());
-
-app.get('/', (req, res) => {
-  res.send('hello');
-});
-app.get('/items', controllers.items);
-app.post('/signup', controllers.signup);
-app.post('/signin', controllers.signin);
-app.get('/user-info', controllers.getUserInfo);
-app.post('/cart', controllers.getCartItems);
-app.post('/cart-item', controllers.addToCart);
-app.delete('/cart-item', controllers.removeFromCart);
-app.patch('/cart-item', controllers.changeQuant);
-app.get('/order', controllers.getOrders);
-app.post('/order', controllers.makeOrder);
+app.use('/', routers);
 
 const HTTPS_PORT = process.env.HTTPS_PORT || 80;
 
