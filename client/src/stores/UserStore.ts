@@ -5,9 +5,9 @@ import RootStore from './RootStore';
 export interface User {
   isAdmin: boolean;
   token: string | null;
+  refreshToken: string | null;
   id: number | null;
-  userName: string | null;
-  // password: string | null;
+  username: string | null;
   userStatus: string | null;
   signupDate: string | null;
   dormantDate: string | null;
@@ -19,13 +19,13 @@ export default class UserStore {
       signIn: action,
       signOut: action,
       getUserType: computed,
-      getUserInfo: computed
+      getUserInfo: computed,
     });
 
     makePersistable(this, {
       name: 'UserStore',
       properties: ['userType', 'userInfo'],
-      storage: window.localStorage
+      storage: window.localStorage,
     });
   }
 
@@ -34,11 +34,12 @@ export default class UserStore {
   userInfo: User = {
     isAdmin: false,
     token: null,
+    refreshToken: null,
     id: null,
-    userName: null,
+    username: null,
     userStatus: null,
     signupDate: null,
-    dormantDate: null
+    dormantDate: null,
   };
 
   signIn(user: User) {
@@ -52,11 +53,12 @@ export default class UserStore {
     this.userInfo = {
       isAdmin: false,
       token: null,
+      refreshToken: null,
       id: null,
-      userName: null,
+      username: null,
       userStatus: null,
       signupDate: null,
-      dormantDate: null
+      dormantDate: null,
     };
   }
 

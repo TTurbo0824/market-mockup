@@ -96,7 +96,9 @@ function Header() {
 
   return (
     <HeaderWrapper>
-      <HeaderIcon onClick={() => handleRouting('/')} src='../../images/icons/home.png' />
+      {userStore.getUserType !== 'admin' ? (
+        <HeaderIcon onClick={() => handleRouting('/')} src='../../images/icons/home.png' />
+      ) : null}
       <nav>
         <ul>
           {userStore.getUserType !== 'admin' ? (

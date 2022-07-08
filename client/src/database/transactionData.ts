@@ -1,6 +1,6 @@
 interface Transaction {
   transactionId: number;
-  userName: string;
+  username: string;
   status: string;
   paymentAmount: number | null;
   paymentDate: string;
@@ -11,7 +11,7 @@ interface Transaction {
 export const transactionData: Transaction[] = [
   {
     transactionId: 1,
-    userName: 'userone',
+    username: 'userone',
     status: '결제완료',
     paymentAmount: 56000,
     paymentDate: '2022-03-18',
@@ -20,7 +20,7 @@ export const transactionData: Transaction[] = [
   },
   {
     transactionId: 2,
-    userName: 'userthree',
+    username: 'userthree',
     status: '결제취소',
     paymentAmount: 52900,
     paymentDate: '2022-05-14',
@@ -29,7 +29,7 @@ export const transactionData: Transaction[] = [
   },
   {
     transactionId: 2,
-    userName: 'userthree',
+    username: 'userthree',
     status: '결제완료',
     paymentAmount: 97500,
     paymentDate: '2022-06-01',

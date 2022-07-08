@@ -6,8 +6,6 @@ require('sequelize-values')(Sequelize);
 module.exports = async (req, res) => {
   try {
     const accessTokenData = isAuthorized(req);
-    // const accessTokenData = { id: req.headers.authorization };
-    console.log(accessTokenData.id);
 
     if (!accessTokenData) {
       return res.status(401).json({ message: "You're not logged in" });
@@ -15,27 +13,8 @@ module.exports = async (req, res) => {
 
     const { newOrders, curDate } = req.body;
 
-    // const newOrders = [
-    //   {
-    //     id: 14,
-    //     img: '퍼즐.jpg',
-    //     itemName: '퍼즐 1000피스',
-    //     price: 19800,
-    //     quantity: 1
-    //   },
-    //   {
-    //     id: 15,
-    //     img: '물티슈.jpg',
-    //     itemName: '물티슈 70매 X 10입(박스)',
-    //     price: 14000,
-    //     quantity: 1
-    //   }
-    // ];
-
-    // const curDate = '2022-07-04';
-
     let totalPrice = 0;
-    newOrders.forEach((el) => totalPrice += el.price);
+    newOrders.forEach((el) => (totalPrice += el.price));
     const itemNames = newOrders.map((el) => el.itemName);
     const itemQuantity = newOrders.map((el) => el.quantity);
     const idToDelete = newOrders.map((el) => el.id);
@@ -56,13 +35,30 @@ module.exports = async (req, res) => {
       where: {
         itemName: itemNames
       },
-      attributes: ['id']
+      attributes: ['id', 'stock', 'sold']
     });
 
     itemList = Sequelize.getValues(itemList);
-    itemList = itemList.map(el => el.id);
 
-    const newItems = itemList.map((el, idx) => {
+    const itemIdList = itemList.map((el) => el.id);
+    const stockList = itemList.map((el) => el.stock);
+    const soldList = itemList.map((el) => el.sold);
+
+    newOrders.map(async (el, idx) => {
+      await Item.update(
+        {
+          stock: stockList[idx] - el.quantity,
+          sold: soldList[idx] + el.quantity
+        },
+        {
+          where: {
+            id: itemIdList[idx]
+          }
+        }
+      );
+    });
+
+    const newItems = itemIdList.map((el, idx) => {
       return {
         orderId: orderId,
         itemId: el,

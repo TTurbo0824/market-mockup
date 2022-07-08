@@ -18,7 +18,7 @@ export interface FullItem {
   img: string;
   stock: number;
   status: string;
-  total: number;
+  sold: number;
 }
 
 export interface PaidItem {
@@ -41,6 +41,7 @@ export default class ItemStore {
     makeAutoObservable(this, {
       addToPaidList: action,
       editItems: action,
+      importAdminList: action,
       importItemList: action,
       importPaidList: action,
       getItems: computed,
@@ -60,6 +61,10 @@ export default class ItemStore {
   allItems: Item[] = [];
 
   paidList: PaidList[] = [];
+
+  importAdminList(items: FullItem[]) {
+    this.items = items;
+  }
 
   importItemList(items: Item[]) {
     this.allItems = items;

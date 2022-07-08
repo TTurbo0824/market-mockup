@@ -134,10 +134,15 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
             <ModalBnt onClick={signout}>로그아웃</ModalBnt>
             <ModalBnt onClick={handleModal}>닫기</ModalBnt>
           </>
-        ) : (
+        ) : message.includes('추가') ? (
           <>
             <Content>{message}</Content>
             <ModalBnt onClick={goToCart}>장바구니로 이동</ModalBnt>
+            <ModalBnt onClick={handleModal}>닫기</ModalBnt>
+          </>
+        ) : (
+          <>
+            <Content>{message}</Content>
             <ModalBnt onClick={handleModal}>닫기</ModalBnt>
           </>
         )}

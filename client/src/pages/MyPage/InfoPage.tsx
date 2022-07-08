@@ -13,7 +13,7 @@ function InfoPage() {
   console.log(userInfo);
 
   const [newInfo, setNewInfo] = useState({
-    username: userInfo.userName,
+    username: userInfo.username,
     password: ''
   })
   

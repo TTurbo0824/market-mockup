@@ -14,31 +14,27 @@ if (localStorage.getItem('UserStore')) {
 
 const axiosInstance = axios.create({
   baseURL,
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
 });
 
 axiosInstance.interceptors.request.use(async (req) => {
   if (authTokens) {
-    let token = authTokens.token;
+    let { token } = authTokens;
+    const { refreshToken } = authTokens;
 
-    const access: any = jwt_decode(authTokens.token);
+    const access: any = jwt_decode(token);
     const isExpired = dayjs.unix(access.exp).diff(dayjs()) < 1;
 
-    const refresh: any = jwt_decode(authTokens.refreshToken);
+    const refresh: any = jwt_decode(refreshToken);
     const isExpiredR = dayjs.unix(refresh.exp).diff(dayjs()) < 1;
 
     if (isExpired && !isExpiredR) {
       const response = await axios.post(`${baseURL}/refreshToken`, {
-        refreshToken: authTokens.refreshToken
+        refreshToken,
       });
 
-      // console.log(isExpired, response.data);
-
       if (response.data.data) {
-        localStorage.setItem(
-          'UserStore',
-          JSON.stringify({ userType: 'user', userInfo: response.data.data })
-        );
+        localStorage.setItem('UserStore', JSON.stringify({ userType: 'user', userInfo: response.data.data }));
         token = response.data.data.token;
         window.location.reload();
       }
@@ -46,7 +42,7 @@ axiosInstance.interceptors.request.use(async (req) => {
 
     req.headers = {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     return req;

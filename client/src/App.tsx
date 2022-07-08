@@ -57,7 +57,9 @@ function App() {
       {openSignin ? <Signin handleSigninModal={handleSigninModal} /> : null}
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={userStore.getUserType !== 'admin' ? <Mainpage /> : <AdminPage />} />
+          {/* <Route path='/' element={userStore.getUserType !== 'admin' ? <Mainpage /> : <AdminPage />} /> */}
+          <Route path='/' element={<Mainpage />} />
+          <Route path='/admin' element={<AdminPage />} />
           <Route path='/history' element={<HistoryPage />} />
           <Route path='/info' element={<InfoPage />} />
           <Route path='/cart' element={<Cartpage />} />

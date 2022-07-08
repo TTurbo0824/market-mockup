@@ -212,10 +212,13 @@ function Cartpage() {
         else cartStore.minusQuantity(itemId);
       })
       .catch((error) => {
+        // console.log(error)
         if (error.response.status === 401) {
           modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+        } else if (error.response.data.message === 'your quantity exceeds current stock') {
+          modalStore.openModal('구매가능 수량을 초과하였습니다.');
         } else {
-          modalStore.openModal(error);
+          modalStore.openModal(error.response.data.message);
         }
       });
   };
@@ -279,7 +282,7 @@ function Cartpage() {
           if (error.response.status === 401) {
             modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
           } else {
-            modalStore.openModal(error);
+            modalStore.openModal(error.response.data.message);
           }
         });
     }

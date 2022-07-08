@@ -2,15 +2,15 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
   generateAccessToken: (data) => {
-    return jwt.sign(data, process.env.ACCESS_SECRET, { expiresIn: '1h' });
+    return jwt.sign(data, process.env.ACCESS_SECRET, { expiresIn: '1d' });
   },
 
   generateRefreshToken: (data) => {
     return jwt.sign(data, process.env.REFRESH_SECRET, { expiresIn: '7d' });
   },
 
-  resendAccessToken: (res, accessToken, data) => {
-    res.json({ data: { accessToken, data }, message: 'ok' });
+  resendAccessToken: (res, data) => {
+    res.json({ data: data, message: 'ok' });
   },
 
   isAuthorized: (req) => {

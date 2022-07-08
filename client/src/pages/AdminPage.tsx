@@ -28,14 +28,14 @@ function AdminPage() {
     if (menu !== 'signout') setNavMenu(menu);
     else {
       userStore.signOut();
-      window.location.reload();
+      window.location.replace('/');
     }
   };
 
   const pages: { [key: string]: JSX.Element } = {
     item: <ItemManagement />,
     user: <UserManagement />,
-    trans: <TransactionManagement />
+    trans: <TransactionManagement />,
   };
 
   return (

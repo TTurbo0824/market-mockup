@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
         include: [
           {
             model: Item,
-            attributes: ['itemName', 'price', 'category', 'img']
+            attributes: ['itemName', 'price', 'category', 'img', 'stock']
           }
         ],
         where: {
@@ -47,6 +47,7 @@ module.exports = async (req, res) => {
           quantity: el.quantity
         };
       });
+
       cartItems = cartItems.map((el) => {
         return {
           id: el.id,
