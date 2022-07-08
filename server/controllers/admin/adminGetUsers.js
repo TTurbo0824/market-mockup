@@ -1,5 +1,7 @@
-const { User } = require('../../models');
+const { User, Order } = require('../../models');
 const { isAuthorized } = require('../tokenFunctions');
+const Sequelize = require('sequelize');
+require('sequelize-values')(Sequelize);
 
 module.exports = async (req, res) => {
   try {
@@ -19,16 +21,29 @@ module.exports = async (req, res) => {
 
     let userList = await User.findAll({
       where: { isAdmin: 0 },
+      include: [
+        {
+          model: Order,
+          attributes: ['totalPrice']
+        }
+      ],
       attributes: ['id', 'username', 'createdAt']
     });
+
+    const getTotalPrice = (prices) => {
+      let totalPrice = 0;
+      prices.forEach((price) => (totalPrice += price.totalPrice));
+      return totalPrice;
+    };
 
     userList = userList.map((user) => {
       return {
         id: user.id,
         username: user.username,
-        userStatus: 'normal',
-        signupDate: String(user.createdAt).slice(0, 10),
-        dormantDate: null
+        userStatus: user.dormantDate ? '휴면' : '정상',
+        signupDate: user.createdAt.toISOString().slice(0, 10),
+        dormantDate: null,
+        orderTotal: getTotalPrice(user.Orders)
       };
     });
 
