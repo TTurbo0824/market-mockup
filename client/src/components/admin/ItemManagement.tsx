@@ -3,6 +3,7 @@ import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
 import { Colors } from '../utils/_var';
 import { observer } from 'mobx-react';
+// import axiosInstance from '../utils/axiosInstance';
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -57,11 +58,21 @@ const EditBnt = styled.button`
   color: white;
 `;
 
+const NoItems = styled.div`
+  margin-top: 1.5rem;
+  text-align: center;
+`;
+
 function ItemManagement() {
-  const { itemStore } = useStores();
+  const { itemStore, modalStore } = useStores();
+
   const allItems = itemStore.getItems;
-  const stocks: number[] = [];
-  allItems.forEach((item) => stocks.push(item.stock));
+
+  console.log(allItems);
+
+  const stocks: number[] = allItems.map((item) => item.stock);
+  // const stocks: number[] = [];
+  // allItems.forEach((item) => stocks.push(item.stock));
 
   const [itemStock, setItemStock] = useState(stocks);
   const [toBeChanged, setToBeChanged] = useState({ idx: null, content: '' });
@@ -70,7 +81,7 @@ function ItemManagement() {
     setItemStock([
       ...itemStock.slice(0, idx),
       Number(e.target.value),
-      ...itemStock.slice(idx + 1, itemStock.length)
+      ...itemStock.slice(idx + 1, itemStock.length),
     ]);
   };
 
@@ -99,19 +110,20 @@ function ItemManagement() {
                 <td>{item.id}</td>
                 <td>{item.itemName}</td>
                 <td>
-                  <StockInput
-                    onChange={(e) => handleStock(e, idx)}
-                    value={String(itemStock[idx])}
-                  />
+                  <StockInput onChange={(e) => handleStock(e, idx)} value={itemStock[idx]} />
                 </td>
                 <td>{item.status}</td>
-                <td>{item.total}</td>
+                <td>{item.sold}</td>
               </tr>
             </tbody>
           ))}
         </Table>
       </TableWrapper>
-      <EditBnt onClick={handleEdit}>일괄수정</EditBnt>
+      {allItems.length === 0 ? (
+        <NoItems>등록된 상품이 없습니다.</NoItems>
+      ) : (
+        <EditBnt onClick={handleEdit}>일괄수정</EditBnt>
+      )}
     </ItemWrapper>
   );
 }

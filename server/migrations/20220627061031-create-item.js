@@ -26,7 +26,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
-      total: {
+      sold: {
         type: Sequelize.INTEGER
       },
       createdAt: {

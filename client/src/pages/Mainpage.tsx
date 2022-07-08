@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
 import { useStores } from '../stores/Context';
 import ItemCardThumb from '../components/ItemCardThumb';
@@ -9,6 +8,7 @@ import { observer } from 'mobx-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBorderAll, faListSquares } from '@fortawesome/free-solid-svg-icons';
 import { Colors } from '../components/utils/_var';
+import axiosInstance from '../components/utils/axiosInstance';
 
 const MainpageWrapper = styled.div`
   min-height: calc(100vh - 136px);
@@ -42,32 +42,33 @@ const ViewIcon = styled.div`
   color: ${(props) => props.color};
 `;
 
-export type MainpageProps = {
-  handleMessage: (message: string) => void;
-};
-
-function Mainpage({ handleMessage }: MainpageProps) {
+function Mainpage() {
   const { itemStore } = useStores();
   const { cartStore } = useStores();
   const { userStore } = useStores();
+  const { modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
   const [isLoading, setIsLoading] = useState(false);
 
   const allCartItems = cartStore.getCartItems;
   const allItems = itemStore.getAllItems;
 
-  const token = userStore.getUserInfo.token;
+  const token = userStore.getUserInfo.token || null;
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const result = await axios.get(process.env.REACT_APP_API_URL + '/items');
-        itemStore.importItemList(result.data.data);
+        const res = await fetch(process.env.REACT_APP_API_URL + '/items', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await res.json();
+        itemStore.importItemList(data.data);
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
-          alert(error.message);
+          modalStore.openModal(error.message);
           setIsLoading(false);
         }
       }
@@ -76,41 +77,29 @@ function Mainpage({ handleMessage }: MainpageProps) {
   }, []);
 
   const handleClick = (item: Item) => {
-    if (allCartItems.map((el) => el.id).includes(item.id)) {
-      openModal('이미 추가된 상품입니다.');
+    if (allCartItems.map((el) => el.itemName).includes(item.itemName)) {
+      modalStore.openModal('이미 추가된 상품입니다.');
     } else {
       if (!token) {
         cartStore.addToCart(item);
-        openModal('장바구니에 추가되었습니다.');
+        modalStore.openModal('장바구니에 추가되었습니다.');
       } else {
-        axios
-          .post(
-            `${process.env.REACT_APP_API_URL}/cart-item`,
-            { itemId: item.id, price: item.price },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              withCredentials: true
-            }
-          )
-          .then(() => {
+        axiosInstance
+          .post('/cart-item', { itemId: item.id })
+          .then((res) => {
+            item.id = res.data.data.id;
             cartStore.addToCart(item);
-            openModal('장바구니에 추가되었습니다.');
+            modalStore.openModal('장바구니에 추가되었습니다.');
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              alert(error.response.message);
+              modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
             } else {
+              modalStore.openModal(error);
             }
           });
       }
     }
-  };
-
-  const openModal = (message: string) => {
-    handleMessage(message);
   };
 
   const handleView = (type: string) => {
@@ -122,12 +111,14 @@ function Mainpage({ handleMessage }: MainpageProps) {
       <ButtonContainer>
         <ViewIcon
           onClick={() => handleView('thumb')}
-          color={viewType === 'thumb' ? Colors.black : Colors.mediumGray}>
+          color={viewType === 'thumb' ? Colors.black : Colors.mediumGray}
+        >
           <FontAwesomeIcon icon={faBorderAll} />
         </ViewIcon>
         <ViewIcon
           onClick={() => handleView('list')}
-          color={viewType === 'list' ? Colors.black : Colors.mediumGray}>
+          color={viewType === 'list' ? Colors.black : Colors.mediumGray}
+        >
           <FontAwesomeIcon icon={faListSquares} />
         </ViewIcon>
       </ButtonContainer>

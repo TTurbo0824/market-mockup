@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useStores } from '../stores/Context';
+import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
-import { Colors, priceToString } from '../components/utils/_var';
-import MainBnt from '../components/MainBnt';
-import { Indicator } from '../components/EmptyCart';
-import axios from 'axios';
+import { Colors, priceToString } from '../../components/utils/_var';
+import MainBnt from '../../components/MainBnt';
+import { Indicator } from '../../components/EmptyCart';
+import axiosInstance from '../../components/utils/axiosInstance';
 
-const MypageWrapper = styled.div`
+const HistoryWrapper = styled.div`
   width: 65rem;
   min-height: calc(100vh - 136px);
   margin: 0 auto;
@@ -87,10 +87,9 @@ const EmptyContainer = styled.div`
   justify-content: center;
 `;
 
-function Mypage() {
+function HistoryPage() {
   const { itemStore } = useStores();
-  const { userStore} = useStores();
-  const token = userStore.getUserInfo.token;
+  const { modalStore } = useStores();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -98,18 +97,16 @@ function Mypage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const result = await axios.get(process.env.REACT_APP_API_URL + '/order',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }});
-        itemStore.importPaidList(result.data.data);
-        setIsLoading(false);
+        await axiosInstance.get('/order').then((result) => {
+          itemStore.importPaidList(result.data.data);
+          setIsLoading(false);
+        });
       } catch (error) {
         if (error instanceof Error) {
-          alert(error.message);
-          setIsLoading(false);
+          if (error.message.includes('404')) {
+            itemStore.importPaidList([]);
+            setIsLoading(false);
+          } else modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
         }
       }
     };
@@ -119,7 +116,7 @@ function Mypage() {
   const paidList = itemStore.getPaidList;
 
   return (
-    <MypageWrapper>
+    <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
       {paidList && paidList.length !== 0 ? (
         paidList.reverse().map((el, idx) => (
@@ -144,8 +141,8 @@ function Mypage() {
           <MainBnt />
         </EmptyContainer>
       )}
-    </MypageWrapper>
+    </HistoryWrapper>
   );
 }
 
-export default Mypage;
+export default HistoryPage;

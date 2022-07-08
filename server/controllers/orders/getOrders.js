@@ -7,15 +7,14 @@ module.exports = async (req, res) => {
   try {
     const accessTokenData = isAuthorized(req);
 
-    // const accessTokenData = { id: req.headers.authorization };
-    // console.log(accessTokenData.id);
-
     if (!accessTokenData) {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
+    const { id } = accessTokenData;
+
     let allOrders = await Order.findAll({
-      where: { userId: accessTokenData.id }
+      where: { userId: id }
     });
 
     if (!allOrders.length) {

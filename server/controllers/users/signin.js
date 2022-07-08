@@ -4,20 +4,22 @@ const { generateAccessToken, generateRefreshToken } = require('../tokenFunctions
 
 module.exports = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, type } = req.body;
 
-    // 로그인 양식을 다 채우지 않은 경우
     if (!username || !password) {
       return res.status(417).json({ message: 'please fill in all the required fields' });
     }
 
-    // 가입된 유저인지 확인
     const member = await User.findOne({
       where: { username: username }
     });
 
     if (!member) {
       return res.status(404).json({ message: 'Invalid user' });
+    } else if (type === 'user' && member.isAdmin) {
+      res.status(401).json({ message: 'not a normal user' });
+    } else if (type === 'admin' && !member.isAdmin) {
+      res.status(401).json({ message: 'not an administrator' });
     } else {
       const dbPassword = member.password;
       const salt = member.salt;
@@ -25,7 +27,6 @@ module.exports = async (req, res) => {
         .pbkdf2Sync(password, salt, 9999, 64, 'sha512')
         .toString('base64');
 
-      // 비밀번호가 틀렸을 경우
       if (hashedPassword !== dbPassword) {
         return res.status(400).json({ message: 'please check your password and try again' });
       } else {
@@ -39,9 +40,21 @@ module.exports = async (req, res) => {
         res.cookie('accessToken', accessToken, cookieOptions);
         res.cookie('refreshToken', refreshToken, cookieOptions);
 
+        const payload = {
+          id: member.id,
+          username: member.username,
+          token: accessToken,
+          refreshToken: refreshToken,
+          isAdmin: member.isAdmin,
+          userStatus: 'normal',
+          signupDate: String(member.createdAt).slice(0, 10),
+          dormantDate: null
+        };
+
         return res.status(200).json({
           accessToken,
           refreshToken,
+          userInfo: payload,
           message: 'logged in successfully'
         });
       }

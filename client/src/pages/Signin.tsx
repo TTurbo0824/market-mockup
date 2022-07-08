@@ -4,9 +4,7 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { ModalBackdrop } from '../components/Modal';
 import { Colors } from '../components/utils/_var';
-import { sign } from 'crypto';
 import axios from 'axios';
-import { User } from '../stores/UserStore';
 
 const SigninView = styled.div`
   position: relative;
@@ -27,7 +25,6 @@ const CloseBnt = styled.button`
   font-size: 1.25rem;
   margin-right: 0;
   margin-left: auto;
-  /* background-color: lime; */
 `;
 
 const ModeContainer = styled.div`
@@ -59,8 +56,14 @@ const SigninBnt = styled.button`
   height: 2rem;
   color: white;
   border: none;
-  /* margin-top: .25rem; */
   padding: 0.25rem;
+`;
+
+const ErrorMsg = styled.div`
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: red;
+  opacity: 90%;
 `;
 
 type SigninProp = {
@@ -68,68 +71,115 @@ type SigninProp = {
 };
 
 function Signin({ handleSigninModal }: SigninProp) {
-  const { userStore } = useStores();
-  const { cartStore } = useStores();
+  const { userStore, cartStore, modalStore, itemStore } = useStores();
 
+  const baseURL = process.env.REACT_APP_API_URL;
   const [mode, setMode] = useState('user');
   const [signinInfo, setSigninInfo] = useState({
     username: '',
-    password: ''
+    password: '',
   });
+
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     setSigninInfo({ ...signinInfo, [key]: e.target.value });
   };
 
-  const handleSignin = () => {
+  const handleAdminSignin = () => {
     axios
-      .post(`${process.env.REACT_APP_API_URL}/signin`, signinInfo, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true
-      })
+      .post(
+        `${baseURL}/signin`,
+        { ...signinInfo, type: 'admin' },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         if (res.status === 200) {
+          console.log(res.data);
+          userStore.signIn(res.data.userInfo);
           return res.data.accessToken;
         }
       })
       .then((token) => {
         axios
-          .get(`${process.env.REACT_APP_API_URL}/user-info`, {
+          .get(`${baseURL}/admin-items`, {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              'Content-Type': 'application/json',
+            },
           })
           .then((res) => {
-            userStore.signIn(res.data.data);
-            return res.data.data.token
-          })
-          .then((token) => {
-            axios
-              .post(`${process.env.REACT_APP_API_URL}/cart`,{newItems: cartStore.getItemQuant}, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                }
-              })
-              .then((res) => {
-                if (res.status === 200) {
-                  cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
-                  handleSigninModal();
-                }
-              });
+            itemStore.importAdminList(res.data.data);
+            handleSigninModal();
+            window.location.replace('/admin');
           });
       })
       .catch((error) => {
-        console.log(error);
-        // if (error.response.data.message === 'please check your password and try again') {
-        //   setErrorMsg('잘못된 비밀번호입니다');
-        // }
+        if (error.response.data.message === 'not an administrator') {
+          setErrorMsg('등록된 관리자가 아닙니다.');
+        } else if (error.response.data.message === 'please check your password and try again') {
+          setErrorMsg('잘못된 비밀번호입니다.');
+        } else if (error.response.data.message === 'Invalid user') {
+          setErrorMsg('가입된 아이디가 아닙니다.');
+        } else {
+          handleSigninModal();
+          modalStore.openModal(error.response.data.message);
+        }
       });
   };
 
-  // console.log(signinInfo);
+  const handleSignin = () => {
+    axios
+      .post(
+        `${baseURL}/signin`,
+        { ...signinInfo, type: 'user' },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          userStore.signIn(res.data.userInfo);
+          return res.data.accessToken;
+        }
+      })
+      .then((token) => {
+        axios
+          .post(
+            `${baseURL}/cart`,
+            { newItems: cartStore.getItemQuant },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+          .then((res) => {
+            if (res.status === 200) {
+              cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
+              handleSigninModal();
+              window.location.reload();
+            }
+          });
+      })
+      .catch((error) => {
+        if (error.response.data.message === 'not a normal user') {
+          setErrorMsg('관리자 로그인을 이용해주세요.');
+        } else if (error.response.data.message === 'please check your password and try again') {
+          setErrorMsg('잘못된 비밀번호입니다.');
+        } else if (error.response.data.message === 'Invalid user') {
+          setErrorMsg('가입된 아이디가 아닙니다.');
+        } else {
+          handleSigninModal();
+          modalStore.openModal(error.response.data.message);
+        }
+      });
+  };
 
   return (
     <ModalBackdrop>
@@ -139,22 +189,16 @@ function Signin({ handleSigninModal }: SigninProp) {
           <ModeBnt onClick={() => setMode('user')} color={mode === 'user' ? Colors.blue : 'white'}>
             일반회원
           </ModeBnt>
-          <ModeBnt
-            onClick={() => setMode('admin')}
-            color={mode === 'admin' ? Colors.blue : 'white'}>
+          <ModeBnt onClick={() => setMode('admin')} color={mode === 'admin' ? Colors.blue : 'white'}>
             관리자
           </ModeBnt>
         </ModeContainer>
-        <SigninInput placeholder="아이디" onChange={(e) => handleInput(e, 'username')} />
-        <SigninInput
-          placeholder="비밀번호"
-          type="password"
-          onChange={(e) => handleInput(e, 'password')}
-        />
-        <SigninBnt onClick={handleSignin}>
+        <SigninInput placeholder='아이디' onChange={(e) => handleInput(e, 'username')} />
+        <SigninInput placeholder='비밀번호' type='password' onChange={(e) => handleInput(e, 'password')} />
+        <SigninBnt onClick={mode === 'user' ? handleSignin : handleAdminSignin}>
           {mode === 'user' ? '로그인' : '관리자로 로그인'}
         </SigninBnt>
-        {errorMsg}
+        <ErrorMsg>{errorMsg}</ErrorMsg>
       </SigninView>
     </ModalBackdrop>
   );

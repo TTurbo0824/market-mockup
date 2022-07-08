@@ -6,7 +6,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AdminPage from './pages/AdminPage';
 import Mainpage from './pages/Mainpage';
-import Mypage from './pages/Mypage';
+import HistoryPage from './pages/MyPage/HistoryPage';
+import InfoPage from './pages/MyPage/InfoPage';
 import Cartpage from './pages/Cartpage';
 import Signin from './pages/Signin';
 import Modal from './components/Modal';
@@ -16,7 +17,8 @@ const AppWrapper = styled.div`
   button {
     cursor: pointer;
   }
-`
+`;
+
 const FixedContainer = styled.div`
   position: fixed;
   top: 0;
@@ -40,10 +42,6 @@ function App() {
     modalStore.closeModal();
   };
 
-  const handleMessage = (message: string) => {
-    modalStore.openModal(message);
-  };
-
   const handleSigninModal = () => {
     if (openSignin) setOpenSignin(false);
     else setOpenSignin(true);
@@ -55,24 +53,16 @@ function App() {
         <Header />
       </FixedContainer>
       <SpacingDiv />
-      {modalInfo.open ? (
-        <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} />
-      ) : null}
+      {modalInfo.open ? <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} /> : null}
       {openSignin ? <Signin handleSigninModal={handleSigninModal} /> : null}
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              userStore.getUserType !== 'admin' ? (
-                <Mainpage handleMessage={handleMessage} />
-              ) : (
-                <AdminPage />
-              )
-            }
-          />
-          <Route path="/mypage" element={<Mypage />} />
-          <Route path="/cart" element={<Cartpage />} />
+          {/* <Route path='/' element={userStore.getUserType !== 'admin' ? <Mainpage /> : <AdminPage />} /> */}
+          <Route path='/' element={<Mainpage />} />
+          <Route path='/admin' element={<AdminPage />} />
+          <Route path='/history' element={<HistoryPage />} />
+          <Route path='/info' element={<InfoPage />} />
+          <Route path='/cart' element={<Cartpage />} />
         </Routes>
       </BrowserRouter>
       <Footer />

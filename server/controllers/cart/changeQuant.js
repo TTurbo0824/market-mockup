@@ -1,4 +1,4 @@
-const { Cart } = require('../../models');
+const { Cart, Item } = require('../../models');
 const { isAuthorized } = require('../tokenFunctions');
 
 module.exports = async (req, res) => {
@@ -10,6 +10,7 @@ module.exports = async (req, res) => {
     }
 
     const { type, itemId } = req.body;
+    console.log(type, itemId);
 
     let curQuant = await Cart.findOne({
       where: {
@@ -17,16 +18,27 @@ module.exports = async (req, res) => {
       }
     });
 
+    const id = curQuant.itemId;
     curQuant = curQuant.quantity;
 
-    await Cart.update(
-      {
-        quantity: type === 'plus' ? curQuant + 1 : curQuant - 1
-      },
-      { where: { id: itemId } }
-    );
+    const stockQuant = await Item.findOne({
+      where: {
+        id: id
+      }
+    });
 
-    res.status(200).json({ message: 'quantity changed' });
+    if ((type === 'plus') & (curQuant + 1 > stockQuant.dataValues.stock)) {
+      res.status(400).json({ message: 'your quantity exceeds current stock' });
+    } else {
+      await Cart.update(
+        {
+          quantity: type === 'plus' ? curQuant + 1 : curQuant - 1
+        },
+        { where: { id: itemId } }
+      );
+
+      res.status(200).json({ message: 'quantity changed' });
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: 'error' });
