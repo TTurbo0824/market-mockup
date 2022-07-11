@@ -17,10 +17,16 @@ module.exports = {
         },
         onDelete: 'cascade'
       },
+      uniqueId: {
+        type: Sequelize.STRING
+      },
+      status: {
+        type: Sequelize.STRING
+      },
       totalPrice: {
         type: Sequelize.INTEGER
       },
-      date: {
+      cancelDate: {
         type: Sequelize.STRING
       },
       createdAt: {

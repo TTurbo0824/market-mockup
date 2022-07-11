@@ -20,6 +20,12 @@ module.exports = {
       isAdmin: {
         type: Sequelize.BOOLEAN
       },
+      status: {
+        type: Sequelize.STRING
+      },
+      dormantDate: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
