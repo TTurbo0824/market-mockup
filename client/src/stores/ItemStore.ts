@@ -31,6 +31,8 @@ export interface PaidItem {
 
 interface PaidList {
   id: number;
+  uniqueId: string;
+  status: string;
   date: string;
   totalPrice: number;
   items: PaidItem[];
@@ -46,13 +48,13 @@ export default class ItemStore {
       importPaidList: action,
       getItems: computed,
       getPaidList: computed,
-      getAllItems: computed
+      getAllItems: computed,
     });
 
     makePersistable(this, {
       name: 'ItemStore',
       properties: ['items', 'paidList', 'allItems'],
-      storage: window.localStorage
+      storage: window.localStorage,
     });
   }
 
@@ -74,10 +76,10 @@ export default class ItemStore {
     this.paidList = list;
   }
 
-  addToPaidList(items: PaidItem[], curDate: string, totalPrice: number) {
+  addToPaidList(items: PaidItem[], id: number, uniqueId: string, curDate: string, totalPrice: number) {
     this.paidList = [
       ...this.paidList,
-      { id: this.paidList.length + 1, date: curDate, totalPrice, items: items }
+      { id, uniqueId, status: '결제완료', date: curDate, totalPrice, items: items },
     ];
   }
 
@@ -90,7 +92,7 @@ export default class ItemStore {
   }
 
   get getAllItems() {
-    return toJS(this.allItems)
+    return toJS(this.allItems);
   }
 
   get getPaidList() {

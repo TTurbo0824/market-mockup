@@ -15,12 +15,17 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         foreignKey: 'userId'
       });
+      Order.hasMany(models.OrderItem, {
+        foreignKey: 'orderId'
+      });
     }
   }
   Order.init({
     userId: DataTypes.INTEGER,
+    uniqueId: DataTypes.STRING,
+    status: DataTypes.STRING,
     totalPrice: DataTypes.INTEGER,
-    date: DataTypes.STRING
+    cancelDate: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Order'

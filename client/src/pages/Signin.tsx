@@ -6,7 +6,7 @@ import { ModalBackdrop } from '../components/Modal';
 import { Colors } from '../components/utils/_var';
 import axios from 'axios';
 
-const SigninView = styled.div`
+export const SigninView = styled.div`
   position: relative;
   width: 16.5rem;
   height: 18rem;
@@ -16,10 +16,10 @@ const SigninView = styled.div`
   justify-content: center;
   background-color: white;
   padding: 0.5rem 0.75rem;
-  box-shadow: 10px 10px grey;
+  box-shadow: 10px 10px gray;
 `;
 
-const CloseBnt = styled.button`
+export const CloseBnt = styled.button`
   background-color: white;
   border: none;
   font-size: 1.25rem;
@@ -30,47 +30,70 @@ const CloseBnt = styled.button`
 const ModeContainer = styled.div`
   width: 100%;
   text-align: center;
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
+  margin: 1rem auto;
 `;
 
 const ModeBnt = styled.button`
   padding: 0.2rem;
-  width: 6rem;
+  width: 6.5rem;
   background-color: ${(props) => props.color};
   border: none;
   border: 1px solid ${Colors.blue};
   color: ${(props) => (props.color !== 'white' ? 'white' : Colors.blue)};
 `;
 
-const SigninInput = styled.input`
-  width: 12rem;
+export const UserInput = styled.input`
+  width: 13rem;
   height: 1.75rem;
   margin-bottom: 0.5rem;
   border: 1px solid ${Colors.borderColor};
 `;
 
-const SigninBnt = styled.button`
+export const SigninBnt = styled.button`
   background-color: ${Colors.blue};
-  width: 12rem;
+  width: 13rem;
   height: 2rem;
   color: white;
   border: none;
   padding: 0.25rem;
 `;
 
-const ErrorMsg = styled.div`
+export const ErrorMsg = styled.div`
   font-size: 0.95rem;
   margin-top: 0.5rem;
   color: red;
   opacity: 90%;
 `;
 
+export const SignupDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  color: ${Colors.mediumGray};
+  width: 12rem;
+  margin-top: 0.25rem;
+`;
+
+export const SignupSpan = styled.span`
+  font-size: 0.85rem;
+`;
+
+export const SignupBnt = styled.button`
+  font-size: 0.85rem;
+  border: none;
+  background-color: white;
+  text-decoration: underline;
+  color: ${Colors.mediumGray};
+  :hover {
+    color: ${Colors.blue};
+  }
+`;
+
 type SigninProp = {
   handleSigninModal: () => void;
+  handleSignupModal: () => void;
 };
 
-function Signin({ handleSigninModal }: SigninProp) {
+function Signin({ handleSigninModal, handleSignupModal }: SigninProp) {
   const { userStore, cartStore, modalStore, itemStore } = useStores();
 
   const baseURL = process.env.REACT_APP_API_URL;
@@ -181,6 +204,11 @@ function Signin({ handleSigninModal }: SigninProp) {
       });
   };
 
+  const handleSignup = () => {
+    handleSignupModal();
+    handleSigninModal();
+  };
+
   return (
     <ModalBackdrop>
       <SigninView>
@@ -193,11 +221,17 @@ function Signin({ handleSigninModal }: SigninProp) {
             관리자
           </ModeBnt>
         </ModeContainer>
-        <SigninInput placeholder='아이디' onChange={(e) => handleInput(e, 'username')} />
-        <SigninInput placeholder='비밀번호' type='password' onChange={(e) => handleInput(e, 'password')} />
+        <UserInput placeholder='아이디' onChange={(e) => handleInput(e, 'username')} />
+        <UserInput placeholder='비밀번호' type='password' onChange={(e) => handleInput(e, 'password')} />
         <SigninBnt onClick={mode === 'user' ? handleSignin : handleAdminSignin}>
           {mode === 'user' ? '로그인' : '관리자로 로그인'}
         </SigninBnt>
+        {mode === 'user' ? (
+          <SignupDiv>
+            <SignupSpan>계정이 없으신가요?</SignupSpan>
+            <SignupBnt onClick={handleSignup}>회원가입</SignupBnt>
+          </SignupDiv>
+        ) : null}
         <ErrorMsg>{errorMsg}</ErrorMsg>
       </SigninView>
     </ModalBackdrop>

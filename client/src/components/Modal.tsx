@@ -117,7 +117,7 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
             <ModalBnt onClick={goToMain}>메인으로 이동</ModalBnt>
             <ModalBnt onClick={handleModal}>닫기</ModalBnt>
           </>
-        ) : message.includes('로그인') ? (
+        ) : message.includes('로그인') || message.includes('회원가입') ? (
           <>
             <Content>{message}</Content>
             <ModalBnt onClick={openSigninModal}>로그인</ModalBnt>

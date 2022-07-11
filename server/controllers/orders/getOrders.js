@@ -65,8 +65,11 @@ module.exports = async (req, res) => {
         allOrders.forEach((order) => {
           fullItemList.push({
             id: order.id,
+            uniqueId: order.uniqueId,
+            status: order.status,
             totalPrice: order.totalPrice,
-            date: order.date,
+            date: order.createdAt.toISOString().slice(0, 10),
+            cancelDate: order.cancelDate,
             items: tempItemList[order.id]
           });
         });
