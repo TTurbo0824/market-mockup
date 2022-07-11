@@ -40,9 +40,9 @@ module.exports = async (req, res) => {
       return {
         id: user.id,
         username: user.username,
-        userStatus: user.dormantDate ? '휴면' : '정상',
+        userStatus: user.status === 'normal' ? '정상' : '휴면',
         signupDate: user.createdAt.toISOString().slice(0, 10),
-        dormantDate: null,
+        dormantDate: user.dormantDate,
         orderTotal: getTotalPrice(user.Orders)
       };
     });

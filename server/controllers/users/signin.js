@@ -46,9 +46,9 @@ module.exports = async (req, res) => {
           token: accessToken,
           refreshToken: refreshToken,
           isAdmin: member.isAdmin,
-          userStatus: 'normal',
+          userStatus: member.status,
           signupDate: String(member.createdAt).slice(0, 10),
-          dormantDate: null
+          dormantDate: member.dormantDate
         };
 
         return res.status(200).json({
