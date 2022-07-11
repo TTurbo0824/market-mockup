@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useStores } from '../../stores/Context';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors, priceToString } from '../../components/utils/_var';
+import Loading from '../../components/Loading';
 import MainBnt from '../../components/MainBnt';
 import { Indicator } from '../../components/EmptyCart';
 import axiosInstance from '../../components/utils/axiosInstance';
@@ -22,7 +24,7 @@ const TitleDiv = styled.div`
   text-align: left;
 `;
 
-const HistoryContainer = styled.div`
+export const HistoryContainer = styled.div`
   width: 100%;
   height: fit-content;
   border: 1px solid ${Colors.borderColor};
@@ -33,49 +35,16 @@ const HistoryContainer = styled.div`
   }
 `;
 
-const OrderDate = styled.div`
+const TopContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const OrderInfo = styled.div`
   margin-bottom: 0.75rem;
 `;
 
-const ItemContainer = styled.div`
-  display: grid;
-  grid-template-areas: 'img itemName' 'img bottom';
-  grid-template-columns: 5.75rem 1fr;
-  grid-template-rows: 2rem 1fr;
-  margin: 0.5rem;
-  margin-bottom: 0;
-  padding: 0.75rem;
-  font-size: 0.9rem;
-  :not(:nth-last-child(2)) {
-    border-bottom: 1px solid ${Colors.lightGray};
-  }
-`;
-
-const ItemImg = styled.img`
-  grid-area: img;
-  width: 4rem;
-`;
-
-const ItemName = styled.div`
-  grid-area: itemName;
-  height: fit-content;
-`;
-
-const BottomRow = styled.div`
-  grid-area: bottom;
-  display: flex;
-  height: fit-content;
-`;
-
-const ItemQuantity = styled.div`
-  margin-right: 0.2rem;
-`;
-
-const ItemPrice = styled.div`
-  margin-left: 0.2rem;
-`;
-
-const TotalPrice = styled.div`
+export const TotalPrice = styled.div`
   text-align: right;
 `;
 
@@ -87,9 +56,15 @@ const EmptyContainer = styled.div`
   justify-content: center;
 `;
 
+const DetailBnt = styled.button`
+  border: 1px solid ${Colors.borderColor};
+  background-color: white;
+`;
+
 function HistoryPage() {
   const { itemStore } = useStores();
   const { modalStore } = useStores();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -115,23 +90,31 @@ function HistoryPage() {
 
   const paidList = itemStore.getPaidList;
 
+  const toDetailPage = (orderId: number) => {
+    navigate(`/history/id=${orderId}`);
+  };
+
   return (
     <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
-      {paidList && paidList.length !== 0 ? (
+      {isLoading ? (
+        <Loading />
+      ) : paidList && paidList.length !== 0 ? (
         paidList.reverse().map((el, idx) => (
           <HistoryContainer key={idx}>
-            <OrderDate>{el.date} 결제 완료</OrderDate>
-            {el.items.map((item, idx) => (
-              <ItemContainer key={idx}>
-                <ItemImg src={`../images/items/${item.img}`} />
-                <ItemName>{item.itemName}</ItemName>
-                <BottomRow>
-                  <ItemQuantity>구매수량: {item.quantity}</ItemQuantity>|
-                  <ItemPrice>{priceToString(item.price)}원</ItemPrice>
-                </BottomRow>
-              </ItemContainer>
-            ))}
+            <TopContainer>
+              <OrderInfo>
+                {el.date} {el.status}
+              </OrderInfo>
+              <DetailBnt onClick={() => toDetailPage(el.id)}>상세내역보기</DetailBnt>
+            </TopContainer>
+            {el.items.length <= 1 ? (
+              <div>{el.items[0].itemName}</div>
+            ) : (
+              <div>
+                {el.items[0].itemName} <span style={{ color: Colors.blue }}>외 {el.items.length - 1}건</span>
+              </div>
+            )}
             <TotalPrice>총 결제금액: {priceToString(el.totalPrice)}원</TotalPrice>
           </HistoryContainer>
         ))

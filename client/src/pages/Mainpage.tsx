@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { useStores } from '../stores/Context';
+import { observer } from 'mobx-react';
+import styled from 'styled-components';
 import ItemCardThumb from '../components/ItemCardThumb';
 import ItemCardList from '../components/ItemCardList';
 import { Item } from '../stores/ItemStore';
-import { observer } from 'mobx-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBorderAll, faListSquares } from '@fortawesome/free-solid-svg-icons';
+import Loading from '../components/Loading';
 import { Colors } from '../components/utils/_var';
 import axiosInstance from '../components/utils/axiosInstance';
 
@@ -43,10 +44,7 @@ const ViewIcon = styled.div`
 `;
 
 function Mainpage() {
-  const { itemStore } = useStores();
-  const { cartStore } = useStores();
-  const { userStore } = useStores();
-  const { modalStore } = useStores();
+  const { itemStore, cartStore, userStore, modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -124,7 +122,7 @@ function Mainpage() {
       </ButtonContainer>
       <CardContainer>
         {isLoading ? (
-          <div>Loading...</div>
+          <Loading />
         ) : (
           allItems &&
           allItems.map((item, idx) => {
