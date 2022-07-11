@@ -3,6 +3,7 @@ module.exports = {
   adminItems: require('./admin/adminGetItems'),
   adminUsers: require('./admin/adminGetUsers'),
   adminTrans: require('./admin/adminGetTrans'),
+  cancelOrder: require('./admin/cancelOrder'),
   signup: require('./users/signup'),
   signin: require('./users/signin'),
   refreshToken: require('./users/refreshTokenRequest'),
@@ -12,5 +13,6 @@ module.exports = {
   removeFromCart: require('./cart/removeFromCart'),
   changeQuant: require('./cart/changeQuant'),
   getOrders: require('./orders/getOrders'),
-  makeOrder: require('./orders/makeOrder')
+  makeOrder: require('./orders/makeOrder'),
+  cancelRequest: require('./orders/cancelRequest')
 };
