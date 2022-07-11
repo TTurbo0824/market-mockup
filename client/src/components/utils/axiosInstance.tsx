@@ -18,7 +18,7 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(async (req) => {
-  if (authTokens) {
+  if (authTokens.token) {
     let { token } = authTokens;
     const { refreshToken } = authTokens;
 
@@ -36,8 +36,8 @@ axiosInstance.interceptors.request.use(async (req) => {
       if (response.data.data) {
         localStorage.setItem('UserStore', JSON.stringify({ userType: 'user', userInfo: response.data.data }));
         token = response.data.data.token;
-        window.location.reload();
       }
+      window.location.reload();
     }
 
     req.headers = {

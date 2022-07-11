@@ -207,9 +207,11 @@ function Cartpage() {
   const handleQuant = (type: string, itemId: number) => {
     axiosInstance
       .patch('cart-item', { type, itemId })
-      .then(() => {
-        if (type === 'plus') cartStore.plusQuantity(itemId);
-        else cartStore.minusQuantity(itemId);
+      .then((res) => {
+        if (res.status === 200) {
+          if (type === 'plus') cartStore.plusQuantity(itemId);
+          else cartStore.minusQuantity(itemId);
+        }
       })
       .catch((error) => {
         // console.log(error)
@@ -271,12 +273,11 @@ function Cartpage() {
       const curDate = getDate();
 
       axiosInstance
-        .post('/order', { newOrders: paidList, curDate })
+        .post('/order', { newOrders: paidList })
         .then((res) => {
-          if (res.status === 200) {
-            itemStore.addToPaidList(paidList, curDate, total.price);
-            handleBulkDelete();
-          }
+          const { id, uniqueId } = res.data.data;
+          itemStore.addToPaidList(paidList, id, uniqueId, curDate, total.price);
+          handleBulkDelete();
         })
         .catch((error) => {
           if (error.response.status === 401) {
