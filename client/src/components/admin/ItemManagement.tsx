@@ -1,8 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
 import { Colors } from '../utils/_var';
 import { observer } from 'mobx-react';
+import {
+  PageTitle,
+  TopContainer,
+  SubContainer,
+  Prop,
+  PropContent,
+  Fields,
+  BottomContent,
+  EmptyIndicator,
+} from './TransactionManagement';
 // import axiosInstance from '../utils/axiosInstance';
 
 const ItemWrapper = styled.div`
@@ -12,38 +22,11 @@ const ItemWrapper = styled.div`
   justify-content: center;
 `;
 
-export const PageTitle = styled.div`
-  width: 60rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-`;
-
-export const TableWrapper = styled.div`
-  width: 100%;
-  height: fit-content;
-`;
-
-export const Table = styled.table`
-  width: 60rem;
-  height: fit-content;
-  text-align: center;
-  margin: 0 auto;
-  border-collapse: collapse;
-  border-bottom: 2px solid ${Colors.borderColor};
-  th {
-    border-top: 2px solid ${Colors.borderColor};
-    border-bottom: 2px solid ${Colors.borderColor};
-  }
-  td {
-    padding: 0.2rem;
-    border-bottom: 1px solid ${Colors.borderColor};
-  }
-`;
-
 const StockInput = styled.input`
   text-align: right;
+  width: 75%;
+  height: 75%;
+  margin: auto;
 `;
 
 const EditBnt = styled.button`
@@ -58,24 +41,48 @@ const EditBnt = styled.button`
   color: white;
 `;
 
-const NoItems = styled.div`
-  margin-top: 1.5rem;
+const FieldContainer = styled.div`
+  width: 60rem;
+  display: grid;
+  grid-template-columns: 10% 35% 11% 17% 17% 10%;
+  border-top: 2px solid ${Colors.borderColor};
+  border-bottom: 2px solid ${Colors.borderColor};
+  font-weight: bold;
+`;
+
+const BottomContainer = styled.div`
+  width: 60rem;
+  display: grid;
+  grid-template-columns: 10% 35% 11% 17% 17% 10%;
+  border-bottom: 1px solid ${Colors.borderColor};
+`;
+
+const BntContainer = styled.div`
+  width: 100%;
   text-align: center;
 `;
 
+interface ChangeItem {
+  id: number | null;
+  quantity: number | null;
+  status: string | null;
+}
+
 function ItemManagement() {
   const { itemStore, modalStore } = useStores();
+  const itemList = itemStore.getItems;
+  // const itemIdArr = itemList.map((el) => el.id);
+  const [displayItem, setDisplayItem] = useState(itemList);
 
-  const allItems = itemStore.getItems;
+  // console.log(itemList);
 
-  console.log(allItems);
-
-  const stocks: number[] = allItems.map((item) => item.stock);
+  const stocks: number[] = itemList.map((item) => item.stock);
   // const stocks: number[] = [];
-  // allItems.forEach((item) => stocks.push(item.stock));
+  // itemList.forEach((item) => stocks.push(item.stock));
 
   const [itemStock, setItemStock] = useState(stocks);
-  const [toBeChanged, setToBeChanged] = useState({ idx: null, content: '' });
+  const [toBeChanged, setToBeChanged] = useState<ChangeItem[]>([]);
+  // const [target, setTarget] = useState(displayItem);
 
   const handleStock = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     setItemStock([
@@ -90,40 +97,67 @@ function ItemManagement() {
     window.location.reload();
   };
 
+  const [mode, setMode] = useState({ status: '전체' });
+
+  const status = ['전체', '판매중', '품절', '재고 8개 미만'];
+  const fields = ['상품코드', '상품명', '총재고량', '재고수정', '판매상태', '누적판매량'];
+
+  useEffect(() => {
+    let tempList = [...itemList];
+
+    if (mode.status !== '전체' && mode.status !== '재고 8개 미만') {
+      tempList = tempList.filter((el) => el.status === mode.status);
+    } else if (mode.status === '재고 8개 미만') {
+      tempList = tempList.filter((el) => el.stock < 8);
+    }
+    setDisplayItem(tempList);
+  }, [mode]);
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMode({ status: e.target.value });
+  };
+
   return (
     <ItemWrapper>
-      <PageTitle>상품 목록</PageTitle>
-      <TableWrapper>
-        <Table>
-          <thead>
-            <tr>
-              <th>상품코드</th>
-              <th>상품명</th>
-              <th>총재고량</th>
-              <th>판매상태</th>
-              <th>누적판매량</th>
-            </tr>
-          </thead>
-          {allItems.map((item, idx) => (
-            <tbody key={idx}>
-              <tr>
-                <td>{item.id}</td>
-                <td>{item.itemName}</td>
-                <td>
-                  <StockInput onChange={(e) => handleStock(e, idx)} value={itemStock[idx]} />
-                </td>
-                <td>{item.status}</td>
-                <td>{item.sold}</td>
-              </tr>
-            </tbody>
-          ))}
-        </Table>
-      </TableWrapper>
-      {allItems.length === 0 ? (
-        <NoItems>등록된 상품이 없습니다.</NoItems>
+      <PageTitle>상품 관리</PageTitle>
+      <TopContainer>
+        <SubContainer>
+          <Prop>상품상태</Prop>
+          <PropContent>
+            <select onChange={(e) => handleSelect(e)}>
+              {status.map((el, idx) => (
+                <option value={el} key={idx}>
+                  {el}
+                </option>
+              ))}
+            </select>
+          </PropContent>
+        </SubContainer>
+      </TopContainer>
+      <FieldContainer>
+        {fields.map((field, idx) => (
+          <Fields key={idx}>{field}</Fields>
+        ))}
+      </FieldContainer>
+      {displayItem && displayItem.length !== 0 ? (
+        displayItem.map((item, idx) => (
+          <BottomContainer key={idx}>
+            <BottomContent>{item.id}</BottomContent>
+            <BottomContent>{item.itemName}</BottomContent>
+            <BottomContent>{item.stock}</BottomContent>
+            <StockInput onChange={(e) => handleStock(e, idx)} value={itemStock[idx]} />
+            <BottomContent>{item.status}</BottomContent>
+            <BottomContent>{item.sold}</BottomContent>
+          </BottomContainer>
+        ))
       ) : (
-        <EditBnt onClick={handleEdit}>일괄수정</EditBnt>
+        <EmptyIndicator>상품이 존재하지 않습니다.</EmptyIndicator>
       )}
+      {displayItem.length !== 0 ? (
+        <BntContainer>
+          <EditBnt onClick={handleEdit}>일괄수정</EditBnt>
+        </BntContainer>
+      ) : null}
     </ItemWrapper>
   );
 }
