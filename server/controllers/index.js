@@ -8,6 +8,7 @@ module.exports = {
   signin: require('./users/signin'),
   refreshToken: require('./users/refreshTokenRequest'),
   getUserInfo: require('./users/getUserInfo'),
+  withdrawal: require('./users/withdrawal'),
   getCartItems: require('./cart/getCartItems'),
   addToCart: require('./cart/addToCart'),
   removeFromCart: require('./cart/removeFromCart'),

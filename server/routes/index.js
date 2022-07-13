@@ -11,6 +11,7 @@ router.post('/signup', controllers.signup);
 router.post('/signin', controllers.signin);
 router.post('/refreshToken', controllers.refreshToken);
 router.get('/user-info', controllers.getUserInfo);
+router.delete('/withdrawal', controllers.withdrawal);
 router.post('/cart', controllers.getCartItems);
 router.post('/cart-item', controllers.addToCart);
 router.delete('/cart-item', controllers.removeFromCart);
