@@ -2,21 +2,24 @@ import { action, makeAutoObservable, computed, toJS } from 'mobx';
 import { makePersistable } from 'mobx-persist-store';
 import RootStore from './RootStore';
 
-interface Transaction {
-  id: number;
-  username: string;
-  status: string;
-  paymentAmount: number;
+export interface Transaction {
+  id: number | null;
+  uniqueId: string | null;
+  username: string | null;
+  name: string | null;
+  status: string | null;
+  paymentAmount: number | null;
   paymentDate: string;
   canceledAmount: number | null;
   canceledDate: string | null;
 }
 
-interface User {
+export interface User {
   id: number | null;
   username: string | null;
+  name: string | null;
   userStatus: string | null;
-  signupDate: string | null;
+  signupDate: string;
   dormantDate: string | null;
   orderTotal: number | null;
 }

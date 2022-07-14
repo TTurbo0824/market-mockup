@@ -8,6 +8,7 @@ export interface User {
   refreshToken: string | null;
   id: number | null;
   username: string | null;
+  name: string | null;
   userStatus: string | null;
   signupDate: string | null;
   dormantDate: string | null;
@@ -37,6 +38,7 @@ export default class UserStore {
     refreshToken: null,
     id: null,
     username: null,
+    name: null,
     userStatus: null,
     signupDate: null,
     dormantDate: null,
@@ -56,6 +58,7 @@ export default class UserStore {
       refreshToken: null,
       id: null,
       username: null,
+      name: null,
       userStatus: null,
       signupDate: null,
       dormantDate: null,

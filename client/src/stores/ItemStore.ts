@@ -8,14 +8,6 @@ export interface Item {
   price: number;
   category: string;
   img: string;
-}
-
-export interface FullItem {
-  id: number;
-  itemName: string;
-  price: number;
-  category: string;
-  img: string;
   stock: number;
   status: string;
   sold: number;
@@ -43,33 +35,25 @@ export default class ItemStore {
     makeAutoObservable(this, {
       addToPaidList: action,
       editItems: action,
-      importAdminList: action,
       importItemList: action,
       importPaidList: action,
       getItems: computed,
       getPaidList: computed,
-      getAllItems: computed,
     });
 
     makePersistable(this, {
       name: 'ItemStore',
-      properties: ['items', 'paidList', 'allItems'],
+      properties: ['items', 'paidList'],
       storage: window.localStorage,
     });
   }
 
-  items: FullItem[] = [];
-
-  allItems: Item[] = [];
+  items: Item[] = [];
 
   paidList: PaidList[] = [];
 
-  importAdminList(items: FullItem[]) {
-    this.items = items;
-  }
-
   importItemList(items: Item[]) {
-    this.allItems = items;
+    this.items = items;
   }
 
   importPaidList(list: PaidList[]) {
@@ -89,10 +73,6 @@ export default class ItemStore {
 
   get getItems() {
     return toJS(this.items);
-  }
-
-  get getAllItems() {
-    return toJS(this.allItems);
   }
 
   get getPaidList() {
