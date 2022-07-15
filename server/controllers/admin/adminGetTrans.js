@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['username']
+          attributes: ['username', 'name']
         }
       ]
     });
@@ -33,12 +33,16 @@ module.exports = async (req, res) => {
     allOrders = allOrders.map((order) => {
       return {
         id: order.id,
+        uniqueId: order.uniqueId,
         username: order.User.username,
-        status: '결제완료',
-        paymentDate: order.createdAt.toISOString().slice(0, 10),
+        name: order.User.name,
+        status: order.status,
+        // paymentDate: order.createdAt.toISOString().slice(0, 10),
+        paymentDate: order.createdAt,
         paymentAmount: order.totalPrice,
-        canceledAmount: null,
-        canceledDate: null
+        canceledAmount: order.cancelDate ? order.totalPrice : null,
+        cancelDate: order.cancelDate,
+        cancelRequestDate: order.cancelRequestDate
       };
     });
 

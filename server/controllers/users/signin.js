@@ -43,6 +43,7 @@ module.exports = async (req, res) => {
         const payload = {
           id: member.id,
           username: member.username,
+          name: member.name,
           token: accessToken,
           refreshToken: refreshToken,
           isAdmin: member.isAdmin,

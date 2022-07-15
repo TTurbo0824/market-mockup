@@ -69,6 +69,7 @@ module.exports = async (req, res) => {
             status: order.status,
             totalPrice: order.totalPrice,
             date: order.createdAt.toISOString().slice(0, 10),
+            cancelRequestDate: order.cancelRequestDate,
             cancelDate: order.cancelDate,
             items: tempItemList[order.id]
           });

@@ -26,6 +26,9 @@ module.exports = {
       totalPrice: {
         type: Sequelize.INTEGER
       },
+      cancelRequestDate: {
+        type: Sequelize.STRING
+      },
       cancelDate: {
         type: Sequelize.STRING
       },
