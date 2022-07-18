@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStores } from '../../src/stores/Context';
 import styled from 'styled-components';
-import SideNar from '../components/admin/SideNar';
+import SideNav from '../components/admin/SideNav';
 import ItemManagement from '../components/admin/ItemManagement';
 import UserManagement from '../components/admin/UserManagement';
 import TransactionManagement from '../components/admin/TransactionManagement';
@@ -17,7 +17,6 @@ const AdminPageWrapper = styled.div`
 const PageWrapper = styled.div`
   width: 100%;
   min-height: calc(100vh - 156px);
-  /* background-color: yellow; */
 `;
 
 function AdminPage() {
@@ -40,7 +39,7 @@ function AdminPage() {
 
   return (
     <AdminPageWrapper>
-      <SideNar handleNav={handleNav} />
+      <SideNav handleNav={handleNav} />
       <PageWrapper>{pages[navMenu]}</PageWrapper>
     </AdminPageWrapper>
   );

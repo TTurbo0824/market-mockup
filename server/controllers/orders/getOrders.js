@@ -74,7 +74,7 @@ module.exports = async (req, res) => {
             items: tempItemList[order.id]
           });
         });
-        res.status(200).json({ data: fullItemList, message: 'ok' });
+        res.status(200).json({ data: fullItemList.reverse(), message: 'ok' });
       });
     };
 

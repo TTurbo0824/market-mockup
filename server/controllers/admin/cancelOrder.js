@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "You don't have permission to access" });
     }
 
-    const { orderId } = req.body;
+    const { orderId, type } = req.body;
 
     let cancelOrder = await Order.findOne({
       include: [
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
 
     await Order.update(
       {
-        status: '결제취소',
+        status: type === 'approv' ? '결제취소' : '취소거절',
         cancelDate: today.toISOString().slice(0, 10)
       },
       {
@@ -45,34 +45,36 @@ module.exports = async (req, res) => {
       }
     );
 
-    const itemIds = cancelOrder.OrderItems.map((el) => el.itemId);
+    if (type === 'approv') {
+      const itemIds = cancelOrder.OrderItems.map((el) => el.itemId);
 
-    let itemList = await Item.findAll({
-      where: {
-        id: itemIds
-      },
-      attributes: ['id', 'stock', 'sold']
-    });
-
-    itemList = Sequelize.getValues(itemList);
-
-    const itemIdList = itemList.map((el) => el.id);
-    const stockList = itemList.map((el) => el.stock);
-    const soldList = itemList.map((el) => el.sold);
-
-    cancelOrder.OrderItems.map(async (el, idx) => {
-      await Item.update(
-        {
-          stock: stockList[idx] + el.quantity,
-          sold: soldList[idx] - el.quantity
+      let itemList = await Item.findAll({
+        where: {
+          id: itemIds
         },
-        {
-          where: {
-            id: itemIdList[idx]
+        attributes: ['id', 'stock', 'sold']
+      });
+
+      itemList = Sequelize.getValues(itemList);
+
+      const itemIdList = itemList.map((el) => el.id);
+      const stockList = itemList.map((el) => el.stock);
+      const soldList = itemList.map((el) => el.sold);
+
+      cancelOrder.OrderItems.map(async (el, idx) => {
+        await Item.update(
+          {
+            stock: stockList[idx] + el.quantity,
+            sold: soldList[idx] - el.quantity
+          },
+          {
+            where: {
+              id: itemIdList[idx]
+            }
           }
-        }
-      );
-    });
+        );
+      });
+    }
 
     res.status(200).json({ message: 'ok' });
   } catch (error) {
