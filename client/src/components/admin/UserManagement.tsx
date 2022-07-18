@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStores } from '../../stores/Context';
-import axiosInstance from '../utils/axiosInstance';
+import { User } from '../../stores/AdminStore';
 import styled from 'styled-components';
 import { Colors, priceToString, dateObj } from '../utils/_var';
 import {
@@ -13,8 +13,10 @@ import {
   Fields,
   BottomContent,
   EmptyIndicator,
+  LoadingWrapper,
 } from './TransactionManagement';
 import Loading from '../Loading';
+import axiosInstance from '../utils/axiosInstance';
 
 const UserWrapper = styled.div`
   display: flex;
@@ -49,6 +51,7 @@ function UserManagement() {
       try {
         const res = await axiosInstance.get('/admin-users');
         adminStore.importUserList(res.data.data);
+        setDisplayItem(res.data.data);
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
@@ -67,7 +70,7 @@ function UserManagement() {
 
   const userList = adminStore.getUserList;
 
-  const [displayItem, setDisplayItem] = useState(userList);
+  const [displayItem, setDisplayItem] = useState<User[]>([]);
   const [mode, setMode] = useState({ date: '전체', status: '전체' });
   const status = ['전체', '정상', '휴면', '이용제한'];
   const dates = ['전체', '오늘', '1주', '1개월', '3개월'];
@@ -99,7 +102,9 @@ function UserManagement() {
     <UserWrapper>
       <PageTitle>회원 조회</PageTitle>
       {isLoading ? (
-        <Loading />
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
       ) : (
         <>
           <TopContainer>

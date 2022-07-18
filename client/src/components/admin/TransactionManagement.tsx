@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
-import axiosInstance from '../utils/axiosInstance';
 import TransModal from './TransModal';
 import { Colors, priceToString, dateObj } from '../utils/_var';
 import { Transaction } from '../../stores/AdminStore';
+import Loading from '../Loading';
+import axiosInstance from '../utils/axiosInstance';
 
 const TransactionWrapper = styled.div`
   display: flex;
@@ -101,6 +102,12 @@ export const EmptyIndicator = styled.div`
   margin-top: 1.5rem;
 `;
 
+export const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 function TransactionManagement() {
   const { adminStore, modalStore } = useStores();
 
@@ -114,9 +121,12 @@ function TransactionManagement() {
     status: null,
     paymentAmount: null,
     paymentDate: '-',
+    cancelRequestDate: null,
     canceledAmount: null,
-    canceledDate: null,
+    cancelDate: null,
   });
+
+  const transList = adminStore.getTransList;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,6 +134,7 @@ function TransactionManagement() {
       try {
         const res = await axiosInstance.get('/admin-transactions');
         adminStore.importTransList(res.data.data);
+        setDisplayItem(res.data.data);
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
@@ -140,11 +151,9 @@ function TransactionManagement() {
     fetchData();
   }, [openModal]);
 
-  const transList = adminStore.getTransList;
-
-  const [displayItem, setDisplayItem] = useState(transList);
+  const [displayItem, setDisplayItem] = useState<Transaction[]>([]);
   const [mode, setMode] = useState({ date: '전체', status: '전체' });
-  const status = ['전체', '결제완료', '결제취소', '취소거절', '취소요청'];
+  const status = ['전체', '결제완료', '취소요청', '결제취소', '취소거절'];
   const dates = ['전체', '오늘', '1주', '1개월', '3개월'];
   const fields = ['아이디', '주문번호', '결제상태', '결제금액', '취소금액', '결제일', '취소일'];
 
@@ -178,70 +187,78 @@ function TransactionManagement() {
   return (
     <TransactionWrapper>
       <PageTitle>거래 내역</PageTitle>
-      <TopContainer>
-        <SubContainer>
-          <Prop>결제일</Prop>
-          <PropContent>
-            {dates.map((el, idx) => (
-              <DateBnt
-                key={idx}
-                onClick={() => handleDateSel(el)}
-                color={mode.date === el ? 'white' : 'black'}
-              >
-                {el}
-              </DateBnt>
-            ))}
-          </PropContent>
-        </SubContainer>
-        <SubContainer>
-          <Prop>결제상태</Prop>
-          <PropContent>
-            <select onChange={(e) => handleSelect(e)}>
-              {status.map((el, idx) => (
-                <option value={el} key={idx}>
-                  {el}
-                </option>
-              ))}
-            </select>
-          </PropContent>
-        </SubContainer>
-      </TopContainer>
-      <FieldContainer>
-        {fields.map((field, idx) => (
-          <Fields key={idx}>{field}</Fields>
-        ))}
-      </FieldContainer>
-      {displayItem && displayItem.length !== 0 ? (
-        displayItem.map((trans, idx) => (
-          <BottomContainer key={idx}>
-            <BottomContent>{trans.username}</BottomContent>
-            <BottomContent>
-              {trans.paymentDate.slice(0, 10)}-{trans.uniqueId}
-            </BottomContent>
-            <BottomContent>
-              {trans.status === '취소요청' ? (
-                <span
-                  onClick={() => {
-                    handleModal();
-                    setTargetOrder(trans);
-                  }}
-                >
-                  {trans.status}
-                </span>
-              ) : (
-                trans.status
-              )}
-            </BottomContent>
-            <BottomContent>{priceToString(trans.paymentAmount)}</BottomContent>
-            <BottomContent>{priceToString(trans.canceledAmount)}</BottomContent>
-            <BottomContent>{trans.paymentDate.slice(0, 10)}</BottomContent>
-            <BottomContent>{trans.canceledDate || '-'}</BottomContent>
-          </BottomContainer>
-        ))
+      {isLoading ? (
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
       ) : (
-        <EmptyIndicator>거래 내역이 존재하지 않습니다.</EmptyIndicator>
+        <>
+          <TopContainer>
+            <SubContainer>
+              <Prop>결제일</Prop>
+              <PropContent>
+                {dates.map((el, idx) => (
+                  <DateBnt
+                    key={idx}
+                    onClick={() => handleDateSel(el)}
+                    color={mode.date === el ? 'white' : 'black'}
+                  >
+                    {el}
+                  </DateBnt>
+                ))}
+              </PropContent>
+            </SubContainer>
+            <SubContainer>
+              <Prop>결제상태</Prop>
+              <PropContent>
+                <select onChange={(e) => handleSelect(e)}>
+                  {status.map((el, idx) => (
+                    <option value={el} key={idx}>
+                      {el}
+                    </option>
+                  ))}
+                </select>
+              </PropContent>
+            </SubContainer>
+          </TopContainer>
+          <FieldContainer>
+            {fields.map((field, idx) => (
+              <Fields key={idx}>{field}</Fields>
+            ))}
+          </FieldContainer>
+          {displayItem && displayItem.length !== 0 ? (
+            displayItem.map((trans, idx) => (
+              <BottomContainer key={idx}>
+                <BottomContent>{trans.username}</BottomContent>
+                <BottomContent>
+                  {trans.paymentDate.slice(0, 10)}-{trans.uniqueId}
+                </BottomContent>
+                <BottomContent>
+                  {trans.status === '취소요청' ? (
+                    <span
+                      onClick={() => {
+                        handleModal();
+                        setTargetOrder(trans);
+                      }}
+                    >
+                      {trans.status}
+                    </span>
+                  ) : (
+                    trans.status
+                  )}
+                </BottomContent>
+                <BottomContent>{priceToString(trans.paymentAmount)}</BottomContent>
+                <BottomContent>{priceToString(trans.canceledAmount)}</BottomContent>
+                <BottomContent>{trans.paymentDate.slice(0, 10)}</BottomContent>
+                <BottomContent>{trans.cancelDate || '-'}</BottomContent>
+              </BottomContainer>
+            ))
+          ) : (
+            <EmptyIndicator>거래 내역이 존재하지 않습니다.</EmptyIndicator>
+          )}
+          {openModal ? <TransModal trans={targetOrder} handleModal={handleModal} /> : null}
+        </>
       )}
-      {openModal ? <TransModal trans={targetOrder} handleModal={handleModal} /> : null}
     </TransactionWrapper>
   );
 }
