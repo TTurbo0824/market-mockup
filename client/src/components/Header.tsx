@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
@@ -60,13 +60,23 @@ const MyMenu = styled.button`
   font-size: 0.9rem;
 `;
 
-function Header() {
-  const { userStore } = useStores();
-  const { cartStore } = useStores();
-  const { modalStore } = useStores();
-  const allCart = cartStore.getCartItems;
+export type HeaderProps = {
+  handleRouting: (route: string) => void;
+  showMenu: boolean;
+};
 
+function Header() {
+  const { userStore, cartStore, modalStore } = useStores();
+  const allCart = cartStore.getCartItems;
   const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('click', (e: any) => {
+      if (showMenu && !e.target.className.toString().includes('prevent')) {
+        setShowMenu(false);
+      }
+    });
+  });
 
   const myMenu = [
     {
@@ -103,8 +113,8 @@ function Header() {
         <ul>
           {userStore.getUserType !== 'admin' ? (
             <>
-              <NavMenu onClick={() => handleRouting('/mypage')}>
-                <HeaderIcon src='../../images/icons/person.png' />
+              <NavMenu className='prevent' onClick={() => handleRouting('/mypage')}>
+                <HeaderIcon className='prevent' src='../../images/icons/person.png' />
               </NavMenu>
               <NavMenu onClick={() => handleRouting('/cart')}>
                 <HeaderIcon src='../../images/icons/cart.png' />
@@ -115,9 +125,9 @@ function Header() {
         </ul>
       </nav>
       {showMenu ? (
-        <MenuDiv>
+        <MenuDiv className='prevent'>
           {myMenu.map((el, idx) => (
-            <MyMenu key={idx} onClick={el.onClick}>
+            <MyMenu className='prevent' key={idx} onClick={el.onClick}>
               {el.menu}
             </MyMenu>
           ))}

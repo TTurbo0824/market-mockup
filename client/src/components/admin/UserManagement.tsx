@@ -1,15 +1,44 @@
 import { useState, useEffect } from 'react';
 import { useStores } from '../../stores/Context';
-import axiosInstance from '../utils/axiosInstance';
+import { User } from '../../stores/AdminStore';
 import styled from 'styled-components';
-import { priceToString } from '../utils/_var';
-import { PageTitle, TableWrapper, Table } from './ItemManagement';
+import { Colors, priceToString, dateObj } from '../utils/_var';
+import {
+  PageTitle,
+  TopContainer,
+  SubContainer,
+  Prop,
+  PropContent,
+  DateBnt,
+  Fields,
+  BottomContent,
+  EmptyIndicator,
+  LoadingWrapper,
+} from './TransactionManagement';
+import Loading from '../Loading';
+import axiosInstance from '../utils/axiosInstance';
 
 const UserWrapper = styled.div`
   display: flex;
   height: fit-content;
   flex-wrap: wrap;
   justify-content: center;
+`;
+
+const FieldContainer = styled.div`
+  width: 60rem;
+  display: grid;
+  grid-template-columns: 10% 15% 12% 15% 15% 18% 15%;
+  border-top: 2px solid ${Colors.borderColor};
+  border-bottom: 2px solid ${Colors.borderColor};
+  font-weight: bold;
+`;
+
+const BottomContainer = styled.div`
+  width: 60rem;
+  display: grid;
+  grid-template-columns: 10% 15% 12% 15% 15% 18% 15%;
+  border-bottom: 1px solid ${Colors.borderColor};
 `;
 
 function UserManagement() {
@@ -22,9 +51,9 @@ function UserManagement() {
       try {
         const res = await axiosInstance.get('/admin-users');
         adminStore.importUserList(res.data.data);
+        setDisplayItem(res.data.data);
         setIsLoading(false);
       } catch (error) {
-        console.log(error);
         if (error instanceof Error) {
           if (error.message.includes('404')) {
             adminStore.importUserList([]);
@@ -39,37 +68,95 @@ function UserManagement() {
     fetchData();
   }, []);
 
-  const allUsers = adminStore.getUserList;
+  const userList = adminStore.getUserList;
 
-  // console.log(allUsers);
+  const [displayItem, setDisplayItem] = useState<User[]>([]);
+  const [mode, setMode] = useState({ date: '전체', status: '전체' });
+  const status = ['전체', '정상', '휴면', '이용제한'];
+  const dates = ['전체', '오늘', '1주', '1개월', '3개월'];
+  const fields = ['회원번호', '아이디', '이름', '가입일', '가입상태', '주문총액', '휴면전환일'];
+
+  useEffect(() => {
+    const today = new Date();
+
+    let tempList = [...userList];
+
+    if (mode.date !== '전체') {
+      tempList = userList.filter((el) => Date.parse(el.signupDate) > today.getTime() - dateObj[mode.date]);
+    }
+    if (mode.status !== '전체') {
+      tempList = tempList.filter((el) => el.userStatus === mode.status);
+    }
+    setDisplayItem(tempList);
+  }, [mode]);
+
+  const handleDateSel = (type: string) => {
+    setMode({ ...mode, date: type });
+  };
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMode({ ...mode, status: e.target.value });
+  };
 
   return (
     <UserWrapper>
-      <PageTitle>회원조회</PageTitle>
-      <TableWrapper>
-        <Table>
-          <thead>
-            <tr>
-              <th>아이디</th>
-              <th>가입일</th>
-              <th>가입상태</th>
-              <th>주문총액</th>
-              <th>휴면전환일</th>
-            </tr>
-          </thead>
-          {allUsers.map((user, idx) => (
-            <tbody key={idx}>
-              <tr>
-                <td>{user.username}</td>
-                <td>{String(user.signupDate)}</td>
-                <td>{user.userStatus}</td>
-                <td>{priceToString(user.orderTotal)}원</td>
-                <td>{user.dormantDate || '-'}</td>
-              </tr>
-            </tbody>
-          ))}
-        </Table>
-      </TableWrapper>
+      <PageTitle>회원 조회</PageTitle>
+      {isLoading ? (
+        <LoadingWrapper>
+          <Loading />
+        </LoadingWrapper>
+      ) : (
+        <>
+          <TopContainer>
+            <SubContainer>
+              <Prop>가입일</Prop>
+              <PropContent>
+                {dates.map((el, idx) => (
+                  <DateBnt
+                    key={idx}
+                    onClick={() => handleDateSel(el)}
+                    color={mode.date === el ? 'white' : 'black'}
+                  >
+                    {el}
+                  </DateBnt>
+                ))}
+              </PropContent>
+            </SubContainer>
+            <SubContainer>
+              <Prop>가입상태</Prop>
+              <PropContent>
+                <select onChange={(e) => handleSelect(e)}>
+                  {status.map((el, idx) => (
+                    <option value={el} key={idx}>
+                      {el}
+                    </option>
+                  ))}
+                </select>
+              </PropContent>
+            </SubContainer>
+          </TopContainer>
+          <FieldContainer>
+            {fields.map((field, idx) => (
+              <Fields key={idx}>{field}</Fields>
+            ))}
+          </FieldContainer>
+          {displayItem && displayItem.length !== 0 ? (
+            displayItem.map((user, idx) => (
+              <BottomContainer key={idx}>
+                <BottomContent>{user.id}</BottomContent>
+                <BottomContent>{user.username}</BottomContent>
+                <BottomContent>{user.name}</BottomContent>
+                <BottomContent>{user.signupDate.slice(0, 10)}</BottomContent>
+                <BottomContent>{user.userStatus}</BottomContent>
+                <BottomContent>{priceToString(user.orderTotal)}</BottomContent>
+                <BottomContent>{user.dormantDate || '-'}</BottomContent>
+              </BottomContainer>
+            ))
+          ) : (
+            <EmptyIndicator>회원이 존재하지 않습니다.</EmptyIndicator>
+          )}
+        </>
+      )}
     </UserWrapper>
   );
 }

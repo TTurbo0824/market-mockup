@@ -8,14 +8,6 @@ export interface Item {
   price: number;
   category: string;
   img: string;
-}
-
-export interface FullItem {
-  id: number;
-  itemName: string;
-  price: number;
-  category: string;
-  img: string;
   stock: number;
   status: string;
   sold: number;
@@ -36,40 +28,35 @@ interface PaidList {
   date: string;
   totalPrice: number;
   items: PaidItem[];
+  cancelRequestDate: string | null;
+  cancelDate: string | null;
 }
 
 export default class ItemStore {
   constructor(RootStore: RootStore) {
     makeAutoObservable(this, {
       addToPaidList: action,
+      editPaidItemStatus: action,
       editItems: action,
-      importAdminList: action,
       importItemList: action,
       importPaidList: action,
       getItems: computed,
       getPaidList: computed,
-      getAllItems: computed,
     });
 
     makePersistable(this, {
       name: 'ItemStore',
-      properties: ['items', 'paidList', 'allItems'],
+      properties: ['items', 'paidList'],
       storage: window.localStorage,
     });
   }
 
-  items: FullItem[] = [];
-
-  allItems: Item[] = [];
+  items: Item[] = [];
 
   paidList: PaidList[] = [];
 
-  importAdminList(items: FullItem[]) {
-    this.items = items;
-  }
-
   importItemList(items: Item[]) {
-    this.allItems = items;
+    this.items = items;
   }
 
   importPaidList(list: PaidList[]) {
@@ -79,7 +66,29 @@ export default class ItemStore {
   addToPaidList(items: PaidItem[], id: number, uniqueId: string, curDate: string, totalPrice: number) {
     this.paidList = [
       ...this.paidList,
-      { id, uniqueId, status: '결제완료', date: curDate, totalPrice, items: items },
+      {
+        id,
+        uniqueId,
+        status: '결제완료',
+        date: curDate,
+        totalPrice,
+        items: items,
+        cancelRequestDate: null,
+        cancelDate: null,
+      },
+    ];
+  }
+
+  editPaidItemStatus(orderId: number, cancelRequestDate: string) {
+    const editedItem = this.paidList.filter((el) => el.id === orderId)[0];
+    const idx = this.paidList.indexOf(editedItem);
+    editedItem.status = '취소요청';
+    editedItem.cancelRequestDate = cancelRequestDate;
+
+    this.paidList = [
+      ...this.paidList.slice(0, idx),
+      editedItem,
+      ...this.paidList.slice(idx + 1, this.paidList.length),
     ];
   }
 
@@ -89,10 +98,6 @@ export default class ItemStore {
 
   get getItems() {
     return toJS(this.items);
-  }
-
-  get getAllItems() {
-    return toJS(this.allItems);
   }
 
   get getPaidList() {

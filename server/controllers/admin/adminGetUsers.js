@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
           attributes: ['totalPrice']
         }
       ],
-      attributes: ['id', 'username', 'createdAt']
+      attributes: ['id', 'username', 'name', 'status', 'createdAt']
     });
 
     const getTotalPrice = (prices) => {
@@ -40,8 +40,9 @@ module.exports = async (req, res) => {
       return {
         id: user.id,
         username: user.username,
+        name: user.name,
         userStatus: user.status === 'normal' ? '정상' : '휴면',
-        signupDate: user.createdAt.toISOString().slice(0, 10),
+        signupDate: user.createdAt,
         dormantDate: user.dormantDate,
         orderTotal: getTotalPrice(user.Orders)
       };

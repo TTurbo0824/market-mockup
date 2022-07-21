@@ -46,13 +46,23 @@ const AddBnt = styled.button`
   cursor: pointer;
 `;
 
+const Tag = styled.div`
+  visibility: ${(props) => props.color};
+  background-color: ${Colors.darkGray};
+  color: white;
+  margin-top: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+`;
+
 function ItemCardThumb({ item, handleClick }: ItemProps) {
   return (
     <Card>
       <ItemImg src={`../images/items/${item.img}`} />
       <ItemName>{item.itemName}</ItemName>
-      <ItemPrice>{priceToString(item.price)}원</ItemPrice>
+      <ItemPrice>{priceToString(item.price)}</ItemPrice>
       <AddBnt onClick={() => handleClick(item)}>장바구니 담기</AddBnt>
+      <Tag color={item.status === '품절' ? 'normal' : 'hidden'}>SOLDOUT</Tag>
     </Card>
   );
 }

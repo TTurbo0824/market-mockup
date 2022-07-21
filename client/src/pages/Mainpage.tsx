@@ -20,8 +20,8 @@ const MainpageWrapper = styled.div`
 `;
 
 const CardContainer = styled.div`
-  width: 65rem;
-  min-width: 65rem;
+  width: 60rem;
+  min-width: 60rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -49,8 +49,7 @@ function Mainpage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const allCartItems = cartStore.getCartItems;
-  const allItems = itemStore.getAllItems;
-
+  const allItems = itemStore.getItems;
   const token = userStore.getUserInfo.token || null;
 
   useEffect(() => {
@@ -92,8 +91,10 @@ function Mainpage() {
           .catch((error) => {
             if (error.response.status === 401) {
               modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+            } else if (error.response.data.message === 'item not available') {
+              modalStore.openModal('현재 판매중인 상품이 아닙니다.');
             } else {
-              modalStore.openModal(error);
+              modalStore.openModal(error.response.data.message);
             }
           });
       }

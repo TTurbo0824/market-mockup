@@ -40,12 +40,25 @@ const AddBnt = styled.button`
   justify-self: center;
 `;
 
+export const Tag = styled.div`
+  background-color: ${Colors.darkGray};
+  color: white;
+  width: fit-content;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+`;
+
 function ItemCardList({ item, handleClick }: ItemProps) {
   return (
     <Card>
       <ItemImg src={`../images/items/${item.img}`} />
-      <ItemName>{item.itemName}</ItemName>
-      <ItemPrice>{priceToString(item.price)}원</ItemPrice>
+      <div>
+        <ItemName>{item.itemName}</ItemName>
+        {item.status === '품절' ? <Tag>SOLDOUT</Tag> : null}
+      </div>
+      <ItemPrice>{priceToString(item.price)}</ItemPrice>
       <AddBnt onClick={() => handleClick(item)}>장바구니 담기</AddBnt>
     </Card>
   );

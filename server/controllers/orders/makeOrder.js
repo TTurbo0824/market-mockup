@@ -64,7 +64,8 @@ module.exports = async (req, res) => {
       await Item.update(
         {
           stock: stockList[idx] - el.quantity,
-          sold: soldList[idx] + el.quantity
+          sold: soldList[idx] + el.quantity,
+          status: stockList[idx] - el.quantity === 0 ? '품절' : '판매중'
         },
         {
           where: {

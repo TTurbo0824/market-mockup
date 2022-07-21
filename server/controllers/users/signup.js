@@ -3,7 +3,7 @@ const { User } = require('../../models');
 
 module.exports = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, name, password } = req.body;
 
     // 회원가입 양식을 다 채우지 않은 경우
     if (!username || !password) {
@@ -27,9 +27,11 @@ module.exports = async (req, res) => {
 
       await User.create({
         username: username,
+        name: name,
         password: encryptedPassword,
         salt: salt,
-        isAdmin: false
+        isAdmin: false,
+        status: 'normal'
       });
 
       res.status(201).json({ message: 'thank you for signing up!' });

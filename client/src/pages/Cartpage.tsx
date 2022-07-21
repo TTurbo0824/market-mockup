@@ -7,7 +7,7 @@ import EmptyCart from '../components/EmptyCart';
 import axiosInstance from '../components/utils/axiosInstance';
 
 const CartpageWrapper = styled.div`
-  width: 65rem;
+  width: 60rem;
   min-height: calc(100vh - 136px);
   display: grid;
   grid-template-areas: 'cart pay';
@@ -61,7 +61,9 @@ const CartImg = styled.img`
 
 const CheckEach = styled.input`
   grid-area: check;
+  width: fit-content;
 `;
+
 const DeleteBnt = styled.button`
   grid-area: delete;
   background-color: white;
@@ -214,7 +216,6 @@ function Cartpage() {
         }
       })
       .catch((error) => {
-        // console.log(error)
         if (error.response.status === 401) {
           modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
         } else if (error.response.data.message === 'your quantity exceeds current stock') {
@@ -345,7 +346,7 @@ function Cartpage() {
               <DeleteBnt onClick={() => handleModal('개별삭제', [item.id])}>✕</DeleteBnt>
               <NameDiv>{item.itemName}</NameDiv>
               <PriceContainer>
-                <PriceDiv>{priceToString(item.price * itemQuantity[idx].quantity)}원</PriceDiv>
+                <PriceDiv>{priceToString(item.price * itemQuantity[idx].quantity)}</PriceDiv>
                 <QuantContainer>
                   <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>-</QuantBnt>
                   <Quant>{itemQuantity[idx].quantity}</Quant>
@@ -367,7 +368,7 @@ function Cartpage() {
         {prices.map((price, idx) => (
           <SpanContainer key={idx}>
             <span>{price.field}</span>
-            {priceToString(price.amount)}원
+            {priceToString(price.amount)}
           </SpanContainer>
         ))}
         <OrderBnt onClick={handlePayment}>주문하기</OrderBnt>

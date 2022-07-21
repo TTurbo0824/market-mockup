@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
-    const { orderId } = req.body;
+    const { orderId, cancelRequestDate } = req.body;
 
     let cancelOrder = await Order.findOne({
       where: { id: orderId }
@@ -19,15 +19,10 @@ module.exports = async (req, res) => {
 
     cancelOrder = Sequelize.getValues(cancelOrder);
 
-    // const today = new Date();
-
-    // if ((today - cancelOrder.createdAt) / 1000 / 24 / 60 / 60 > 7) {
-    //   res.status(400).json({ message: 'cancellation date has passed' });
-    // }
-
     await Order.update(
       {
-        status: '취소요청'
+        status: '취소요청',
+        cancelRequestDate
       },
       {
         where: { id: orderId }

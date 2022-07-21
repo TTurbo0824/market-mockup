@@ -10,7 +10,10 @@ module.exports = async (req, res) => {
         itemName: item.itemName,
         price: item.price,
         category: item.category,
-        img: item.img
+        img: item.img,
+        stock: item.stock,
+        status: item.status,
+        sold: item.sold
       };
     });
 
