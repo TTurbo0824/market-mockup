@@ -110,98 +110,106 @@ function Signin({ handleSigninModal, handleSignupModal }: SigninProp) {
   };
 
   const handleAdminSignin = () => {
-    axios
-      .post(
-        `${baseURL}/signin`,
-        { ...signinInfo, type: 'admin' },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        },
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          console.log(res.data);
-          userStore.signIn(res.data.userInfo);
-          return res.data.accessToken;
-        }
-      })
-      .then((token) => {
-        axios
-          .get(`${baseURL}/admin-items`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          })
-          .then((res) => {
-            itemStore.importAdminList(res.data.data);
-            handleSigninModal();
-            window.location.replace('/admin');
-          });
-      })
-      .catch((error) => {
-        if (error.response.data.message === 'not an administrator') {
-          setErrorMsg('등록된 관리자가 아닙니다.');
-        } else if (error.response.data.message === 'please check your password and try again') {
-          setErrorMsg('잘못된 비밀번호입니다.');
-        } else if (error.response.data.message === 'Invalid user') {
-          setErrorMsg('가입된 아이디가 아닙니다.');
-        } else {
-          handleSigninModal();
-          modalStore.openModal(error.response.data.message);
-        }
-      });
-  };
-
-  const handleSignin = () => {
-    axios
-      .post(
-        `${baseURL}/signin`,
-        { ...signinInfo, type: 'user' },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        },
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          userStore.signIn(res.data.userInfo);
-          return res.data.accessToken;
-        }
-      })
-      .then((token) => {
-        axios
-          .post(
-            `${baseURL}/cart`,
-            { newItems: cartStore.getItemQuant },
-            {
+    if (!signinInfo.username || !signinInfo.password) {
+      setErrorMsg('모든 항목을 입력해 주세요.');
+    } else {
+      axios
+        .post(
+          `${baseURL}/signin`,
+          { ...signinInfo, type: 'admin' },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+          },
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            console.log(res.data);
+            userStore.signIn(res.data.userInfo);
+            return res.data.accessToken;
+          }
+        })
+        .then((token) => {
+          axios
+            .get(`${baseURL}/admin-items`, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
               },
-            },
-          )
-          .then((res) => {
-            if (res.status === 200) {
-              cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
+            })
+            .then((res) => {
+              itemStore.importItemList(res.data.data);
               handleSigninModal();
-              window.location.reload();
-            }
-          });
-      })
-      .catch((error) => {
-        if (error.response.data.message === 'not a normal user') {
-          setErrorMsg('관리자 로그인을 이용해주세요.');
-        } else if (error.response.data.message === 'please check your password and try again') {
-          setErrorMsg('잘못된 비밀번호입니다.');
-        } else if (error.response.data.message === 'Invalid user') {
-          setErrorMsg('가입된 아이디가 아닙니다.');
-        } else {
-          handleSigninModal();
-          modalStore.openModal(error.response.data.message);
-        }
-      });
+              window.location.replace('/admin');
+            });
+        })
+        .catch((error) => {
+          if (error.response.data.message === 'not an administrator') {
+            setErrorMsg('등록된 관리자가 아닙니다.');
+          } else if (error.response.data.message === 'please check your password and try again') {
+            setErrorMsg('잘못된 비밀번호입니다.');
+          } else if (error.response.data.message === 'Invalid user') {
+            setErrorMsg('가입된 아이디가 아닙니다.');
+          } else {
+            handleSigninModal();
+            modalStore.openModal(error.response.data.message);
+          }
+        });
+    }
+  };
+
+  const handleSignin = () => {
+    if (!signinInfo.username || !signinInfo.password) {
+      setErrorMsg('모든 항목을 입력해 주세요.');
+    } else {
+      axios
+        .post(
+          `${baseURL}/signin`,
+          { ...signinInfo, type: 'user' },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+          },
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            userStore.signIn(res.data.userInfo);
+            return res.data.accessToken;
+          }
+        })
+        .then((token) => {
+          axios
+            .post(
+              `${baseURL}/cart`,
+              { newItems: cartStore.getItemQuant },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              },
+            )
+            .then((res) => {
+              if (res.status === 200) {
+                cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
+                handleSigninModal();
+                window.location.replace('/');
+              }
+            });
+        })
+        .catch((error) => {
+          if (error.response.data.message === 'not a normal user') {
+            setErrorMsg('관리자 로그인을 이용해주세요.');
+          } else if (error.response.data.message === 'please check your password and try again') {
+            setErrorMsg('잘못된 비밀번호입니다.');
+          } else if (error.response.data.message === 'Invalid user') {
+            setErrorMsg('가입된 아이디가 아닙니다.');
+          } else {
+            handleSigninModal();
+            modalStore.openModal(error.response.data.message);
+          }
+        });
+    }
   };
 
   const handleSignup = () => {
@@ -214,10 +222,22 @@ function Signin({ handleSigninModal, handleSignupModal }: SigninProp) {
       <SigninView>
         <CloseBnt onClick={handleSigninModal}>✕</CloseBnt>
         <ModeContainer>
-          <ModeBnt onClick={() => setMode('user')} color={mode === 'user' ? Colors.blue : 'white'}>
+          <ModeBnt
+            onClick={() => {
+              setMode('user');
+              setErrorMsg('');
+            }}
+            color={mode === 'user' ? Colors.blue : 'white'}
+          >
             일반회원
           </ModeBnt>
-          <ModeBnt onClick={() => setMode('admin')} color={mode === 'admin' ? Colors.blue : 'white'}>
+          <ModeBnt
+            onClick={() => {
+              setMode('admin');
+              setErrorMsg('');
+            }}
+            color={mode === 'admin' ? Colors.blue : 'white'}
+          >
             관리자
           </ModeBnt>
         </ModeContainer>
