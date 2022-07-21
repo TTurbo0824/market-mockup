@@ -28,12 +28,15 @@ interface PaidList {
   date: string;
   totalPrice: number;
   items: PaidItem[];
+  cancelRequestDate: string | null;
+  cancelDate: string | null;
 }
 
 export default class ItemStore {
   constructor(RootStore: RootStore) {
     makeAutoObservable(this, {
       addToPaidList: action,
+      editPaidItemStatus: action,
       editItems: action,
       importItemList: action,
       importPaidList: action,
@@ -63,7 +66,29 @@ export default class ItemStore {
   addToPaidList(items: PaidItem[], id: number, uniqueId: string, curDate: string, totalPrice: number) {
     this.paidList = [
       ...this.paidList,
-      { id, uniqueId, status: '결제완료', date: curDate, totalPrice, items: items },
+      {
+        id,
+        uniqueId,
+        status: '결제완료',
+        date: curDate,
+        totalPrice,
+        items: items,
+        cancelRequestDate: null,
+        cancelDate: null,
+      },
+    ];
+  }
+
+  editPaidItemStatus(orderId: number, cancelRequestDate: string) {
+    const editedItem = this.paidList.filter((el) => el.id === orderId)[0];
+    const idx = this.paidList.indexOf(editedItem);
+    editedItem.status = '취소요청';
+    editedItem.cancelRequestDate = cancelRequestDate;
+
+    this.paidList = [
+      ...this.paidList.slice(0, idx),
+      editedItem,
+      ...this.paidList.slice(idx + 1, this.paidList.length),
     ];
   }
 

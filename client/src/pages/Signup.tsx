@@ -18,7 +18,7 @@ const InputContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 1.25rem;
+  margin-top: 1.15rem;
 `;
 
 type SignupProp = {
@@ -31,19 +31,20 @@ function Signup({ handleSignupModal, handleSigninModal }: SignupProp) {
 
   const [userInfo, setUserInfo] = useState({
     username: '',
+    name: '',
     password: '',
   });
 
   const [checkUsername, setCheckUsername] = useState('');
+  const [checkName, setCheckName] = useState('');
   const [checkPassword, setCheckPassword] = useState('');
   const [checkRetypePassword, setCheckRetypePassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const isValidUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const regExpSpec = /[a-zA-Z0-9]/;
+    const regExp = /[a-zA-Z0-9]/;
 
-    console.log(e.target.value.length);
-    if (!regExpSpec.test(e.target.value)) {
+    if (!regExp.test(e.target.value)) {
       setCheckUsername('fail');
     } else if (e.target.value.search(/\s/) !== -1) {
       setCheckUsername('space');
@@ -51,6 +52,18 @@ function Signup({ handleSignupModal, handleSigninModal }: SignupProp) {
       setCheckUsername('length');
     } else {
       setCheckUsername('ok');
+    }
+  };
+
+  const isValidName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const regExp = /^[가-힣|]/;
+
+    if (e.target.value.length < 2 || e.target.value.length > 8) {
+      setCheckName('length');
+    } else if (!regExp.test(e.target.value)) {
+      setCheckName('false');
+    } else {
+      setCheckName('ok');
     }
   };
 
@@ -79,33 +92,30 @@ function Signup({ handleSignupModal, handleSigninModal }: SignupProp) {
 
   const inputCheck = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     handleInputValue(key)(e);
-    if (key === 'username') {
-      isValidUsername(e);
-    }
-
-    if (key === 'password') {
-      isValidPassword(e);
-    }
+    if (key === 'username') isValidUsername(e);
+    if (key === 'name') isValidName(e);
+    if (key === 'password') isValidPassword(e);
   };
-
-  // console.log(checkUsername, checkPassword, checkRetypePassword);
-  // console.log(userInfo.username, userInfo.password);
 
   const handleSignup = () => {
     if (!userInfo.username || !userInfo.password) {
       setErrorMsg('모든 항목을 입력해 주세요.');
-    } else if (!checkRetypePassword) {
-      setErrorMsg('비밀번호가 일치하지 않습니다.');
     } else if (checkPassword === 'length') {
       setErrorMsg('비밀번호는 8-12자입니다.');
     } else if (checkPassword === 'fail') {
       setErrorMsg('비밀번호 형식을 확인해주세요.');
+    } else if (!checkRetypePassword) {
+      setErrorMsg('비밀번호가 일치하지 않습니다.');
     } else if (checkUsername === 'length') {
       setErrorMsg('아이디는 4-8자입니다.');
     } else if (checkUsername === 'fail') {
       setErrorMsg('아이디 형식을 확인해주세요.');
     } else if (checkUsername === 'space') {
       setErrorMsg('아이디는 공백을 포함하면 안됩니다.');
+    } else if (checkName === 'length') {
+      setErrorMsg('이름은 2-8자입니다.');
+    } else if (checkName === 'fail') {
+      setErrorMsg('이름 형식을 확인해주세요.');
     } else {
       axiosInstance
         .post('/signup', userInfo)
@@ -133,10 +143,11 @@ function Signup({ handleSignupModal, handleSigninModal }: SignupProp) {
 
   return (
     <ModalBackdrop>
-      <SigninView>
+      <SigninView style={{ width: '17rem', height: '19.5rem' }}>
         <CloseBnt onClick={handleSignupModal}>✕</CloseBnt>
         <InputContainer>
           <UserInput onChange={inputCheck('username')} placeholder='아이디 (영문, 숫자 4-8자)' />
+          <UserInput onChange={inputCheck('name')} placeholder='이름 (한글 2-8자)' />
           <UserInput
             onChange={inputCheck('password')}
             placeholder='비밀번호 (영문, 숫자 포함 8-12자)'

@@ -10,8 +10,9 @@ export interface Transaction {
   status: string | null;
   paymentAmount: number | null;
   paymentDate: string;
+  cancelRequestDate: string | null;
   canceledAmount: number | null;
-  canceledDate: string | null;
+  cancelDate: string | null;
 }
 
 export interface User {
