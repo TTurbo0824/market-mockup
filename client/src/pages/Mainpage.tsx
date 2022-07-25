@@ -28,27 +28,48 @@ const CardContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
+const TopContainer = styled.div`
+  display: flex;
+  width: 60rem;
+  justify-content: right;
+  align-items: center;
+  margin-bottom: 1.75rem;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
-  width: 65rem;
-  min-width: 65rem;
-  justify-content: right;
-  margin-bottom: 0.5rem;
+  height: 2rem;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid ${Colors.black};
+  margin-left: 0.5rem;
 `;
 
 const ViewIcon = styled.div`
   cursor: pointer;
-  margin-left: 0.75rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: ${(props) => props.color};
+  padding: 0 0.4rem;
+  :last-of-type {
+    border-left: 1px solid ${Colors.black};
+  }
+`;
+
+const SoldOutBnt = styled.button`
+  height: 2rem;
+  background-color: white;
+  margin-right: 0.25rem;
+  padding: 0 0.5rem;
+  border: 1px solid ${Colors.borderColor};
 `;
 
 function Mainpage() {
   const { itemStore, cartStore, userStore, modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
   const [isLoading, setIsLoading] = useState(false);
-
+  const [outInclud, setOutInclud] = useState(true);
   const allCartItems = cartStore.getCartItems;
+  const [displayItems, setDisplayItems] = useState<Item[]>([]);
   const allItems = itemStore.getItems;
   const token = userStore.getUserInfo.token || null;
 
@@ -62,16 +83,25 @@ function Mainpage() {
         });
         const data = await res.json();
         itemStore.importItemList(data.data);
+        setDisplayItems(data.data);
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
           modalStore.openModal(error.message);
+          setDisplayItems([]);
           setIsLoading(false);
         }
       }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!outInclud) {
+      const newItemList = allItems.filter((el) => el.status !== '품절');
+      setDisplayItems(newItemList);
+    } else setDisplayItems(allItems);
+  }, [outInclud]);
 
   const handleClick = (item: Item) => {
     if (allCartItems.map((el) => el.itemName).includes(item.itemName)) {
@@ -105,28 +135,36 @@ function Mainpage() {
     setViewType(type);
   };
 
+  const handleSoldOut = () => {
+    if (outInclud) setOutInclud(false);
+    else setOutInclud(true);
+  };
+
   return (
     <MainpageWrapper>
-      <ButtonContainer>
-        <ViewIcon
-          onClick={() => handleView('thumb')}
-          color={viewType === 'thumb' ? Colors.black : Colors.mediumGray}
-        >
-          <FontAwesomeIcon icon={faBorderAll} />
-        </ViewIcon>
-        <ViewIcon
-          onClick={() => handleView('list')}
-          color={viewType === 'list' ? Colors.black : Colors.mediumGray}
-        >
-          <FontAwesomeIcon icon={faListSquares} />
-        </ViewIcon>
-      </ButtonContainer>
+      <TopContainer>
+        <SoldOutBnt onClick={handleSoldOut}>{!outInclud ? '+ 품절상품 포함' : '- 품절상품 제외'}</SoldOutBnt>
+        <ButtonContainer>
+          <ViewIcon
+            onClick={() => handleView('thumb')}
+            color={viewType === 'thumb' ? Colors.black : Colors.mediumGray}
+          >
+            <FontAwesomeIcon icon={faBorderAll} />
+          </ViewIcon>
+          <ViewIcon
+            onClick={() => handleView('list')}
+            color={viewType === 'list' ? Colors.black : Colors.mediumGray}
+          >
+            <FontAwesomeIcon icon={faListSquares} />
+          </ViewIcon>
+        </ButtonContainer>
+      </TopContainer>
       <CardContainer>
         {isLoading ? (
           <Loading />
         ) : (
-          allItems &&
-          allItems.map((item, idx) => {
+          displayItems &&
+          displayItems.map((item, idx) => {
             if (viewType === 'thumb') {
               return <ItemCardThumb key={idx} item={item} handleClick={handleClick} />;
             } else return <ItemCardList key={idx} item={item} handleClick={handleClick} />;
