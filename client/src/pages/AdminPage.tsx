@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useStores } from '../../src/stores/Context';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SideNav from '../components/admin/SideNav';
 import ItemManagement from '../components/admin/ItemManagement';
@@ -20,27 +20,24 @@ const PageWrapper = styled.div`
 `;
 
 function AdminPage() {
-  const { userStore } = useStores();
-  const [navMenu, setNavMenu] = useState('item');
+  const navigate = useNavigate();
+  const [curContent, setCurContent] = useState<JSX.Element | null>(null);
 
-  const handleNav = (menu: string) => {
-    if (menu !== 'signout') setNavMenu(menu);
-    else {
-      userStore.signOut();
-      window.location.replace('/');
-    }
-  };
+  useEffect(() => {
+    const pathName = window.location.pathname.split('admin/')[1] || 'items';
+    setCurContent(pages[pathName]);
+  }, [navigate]);
 
   const pages: { [key: string]: JSX.Element } = {
-    item: <ItemManagement />,
-    user: <UserManagement />,
+    items: <ItemManagement />,
+    users: <UserManagement />,
     trans: <TransactionManagement />,
   };
 
   return (
     <AdminPageWrapper>
-      <SideNav handleNav={handleNav} />
-      <PageWrapper>{pages[navMenu]}</PageWrapper>
+      <SideNav />
+      <PageWrapper>{curContent}</PageWrapper>
     </AdminPageWrapper>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { observer } from 'mobx-react';
 import { useStores } from './stores/Context';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdminPage from './pages/AdminPage';
@@ -13,11 +13,13 @@ import Cartpage from './pages/Cartpage';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import Modal from './components/Modal';
+import ErrorPage from './pages/ErrorPage';
 import styled from 'styled-components';
 
 const AppWrapper = styled.div`
   button {
     cursor: pointer;
+    font-family: 'IBM Plex Sans KR', sans-serif;
   }
 `;
 
@@ -35,8 +37,7 @@ const SpacingDiv = styled.div`
 `;
 
 function App() {
-  const { userStore } = useStores();
-  const { modalStore } = useStores();
+  const { modalStore, userStore } = useStores();
   const modalInfo = modalStore.modalInfo;
   const [openSignin, setOpenSignin] = useState(false);
   const [openSignup, setOpennSignup] = useState(false);
@@ -70,13 +71,44 @@ function App() {
       ) : null}
       <BrowserRouter>
         <Routes>
-          {/* <Route path='/' element={userStore.getUserType !== 'admin' ? <Mainpage /> : <AdminPage />} /> */}
-          <Route path='/' element={<Mainpage />} />
-          <Route path='/admin' element={<AdminPage />} />
-          <Route path='/history' element={<HistoryPage />} />
-          <Route path='/history/:id' element={<HistoryDetail />} />
-          <Route path='/info' element={<InfoPage />} />
-          <Route path='/cart' element={<Cartpage />} />
+          <Route
+            path='/'
+            element={userStore.getUserType !== 'admin' ? <Mainpage /> : <Navigate to='/admin' />}
+          />
+          <Route
+            path='/admin'
+            element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
+          >
+            <Route
+              path='items'
+              element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
+            />
+            <Route
+              path='trans'
+              element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
+            />
+            <Route
+              path='users'
+              element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
+            />
+          </Route>
+          <Route
+            path='/history'
+            element={userStore.getUserType === 'user' ? <HistoryPage /> : <Navigate to='/error' />}
+          />
+          <Route
+            path='/history/:id'
+            element={userStore.getUserType !== 'nonuser' ? <HistoryDetail /> : <Navigate to='/error' />}
+          />
+          <Route
+            path='/info'
+            element={userStore.getUserType === 'user' ? <InfoPage /> : <Navigate to='/error' />}
+          />
+          <Route
+            path='/cart'
+            element={userStore.getUserType !== 'admin' ? <Cartpage /> : <Navigate to='/admin' />}
+          />
+          <Route path='/*' element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>
       <Footer />
