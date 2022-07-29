@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import ItemCardThumb from '../components/ItemCardThumb';
 import ItemCardList from '../components/ItemCardList';
@@ -66,35 +67,56 @@ const SoldOutBnt = styled.button`
 function Mainpage() {
   const { itemStore, cartStore, userStore, modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
-  const [isLoading, setIsLoading] = useState(false);
   const [outInclud, setOutInclud] = useState(true);
-  const allCartItems = cartStore.getCartItems;
   const [displayItems, setDisplayItems] = useState<Item[]>([]);
   const allItems = itemStore.getItems;
+  const allCartItems = cartStore.getCartItems;
   const token = userStore.getUserInfo.token || null;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(process.env.REACT_APP_API_URL + '/items', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await res.json();
-        itemStore.importItemList(data.data);
-        setDisplayItems(data.data);
-        setIsLoading(false);
-      } catch (error) {
-        if (error instanceof Error) {
-          modalStore.openModal(error.message);
-          setDisplayItems([]);
-          setIsLoading(false);
-        }
+  const FetchItemList = () => {
+    const fetchItemData = async () => {
+      const res = await fetch(process.env.REACT_APP_API_URL + '/items', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (res.status === 200) {
+        const { data } = await res.json();
+        return data;
+      } else if (res.status === 404) {
+        return [];
       }
     };
-    fetchData();
-  }, []);
+
+    const itemList = useQuery(['itemData'], fetchItemData, {
+      refetchOnWindowFocus: false,
+      retry: 0,
+
+      onSuccess: (data) => {
+        itemStore.importItemList(data);
+        setDisplayItems(data);
+      },
+    });
+
+    const { data, isLoading, error } = itemList;
+
+    if (error) {
+      modalStore.openModal(String(error));
+      return <div>웹페이지를 표시하는 도중 문제가 발생했습니다.</div>;
+    } else if (isLoading) {
+      return <Loading />;
+    } else if (data) {
+      return displayItems.length ? (
+        displayItems.map((item) => {
+          if (viewType === 'thumb') {
+            return <ItemCardThumb key={item.id} item={item} handleClick={handleClick} />;
+          } else return <ItemCardList key={item.id} item={item} handleClick={handleClick} />;
+        })
+      ) : (
+        <div>표시할 상품이 없습니다.</div>
+      );
+    }
+  };
 
   useEffect(() => {
     if (!outInclud) {
@@ -159,18 +181,7 @@ function Mainpage() {
           </ViewIcon>
         </ButtonContainer>
       </TopContainer>
-      <CardContainer>
-        {isLoading ? (
-          <Loading />
-        ) : (
-          displayItems &&
-          displayItems.map((item, idx) => {
-            if (viewType === 'thumb') {
-              return <ItemCardThumb key={idx} item={item} handleClick={handleClick} />;
-            } else return <ItemCardList key={idx} item={item} handleClick={handleClick} />;
-          })
-        )}
-      </CardContainer>
+      <CardContainer>{FetchItemList()}</CardContainer>
     </MainpageWrapper>
   );
 }
