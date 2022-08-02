@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
     await Order.update(
       {
         status: type === 'approv' ? '결제취소' : '취소거절',
-        cancelDate: today.toISOString().slice(0, 10)
+        cancelDate: type === 'approv' ? today.toISOString().slice(0, 10) : null
       },
       {
         where: { id: orderId }
