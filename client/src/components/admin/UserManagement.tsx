@@ -26,7 +26,7 @@ const UserWrapper = styled.div`
 `;
 
 const FieldContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 10% 15% 12% 15% 15% 18% 15%;
   border-top: 2px solid ${Colors.borderColor};
@@ -35,7 +35,7 @@ const FieldContainer = styled.div`
 `;
 
 const BottomContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 10% 15% 12% 15% 15% 18% 15%;
   border-bottom: 1px solid ${Colors.borderColor};
@@ -66,7 +66,7 @@ function UserManagement() {
       }
     };
     fetchData();
-  }, []);
+  }, [adminStore, modalStore]);
 
   const userList = adminStore.getUserList;
 
@@ -88,7 +88,7 @@ function UserManagement() {
       tempList = tempList.filter((el) => el.userStatus === mode.status);
     }
     setDisplayItem(tempList);
-  }, [mode]);
+  }, [mode, userList]);
 
   const handleDateSel = (type: string) => {
     setMode({ ...mode, date: type });

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
 import TransModal from './TransModal';
@@ -20,7 +21,7 @@ const TransactionWrapper = styled.div`
 `;
 
 export const PageTitle = styled.div`
-  width: 60rem;
+  width: 58rem;
   font-size: 1.5rem;
   font-weight: bold;
   margin-top: 1rem;
@@ -28,7 +29,7 @@ export const PageTitle = styled.div`
 `;
 
 export const TopContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   border-top: 2px solid ${Colors.borderColor};
   border-bottom: 2px solid ${Colors.borderColor};
   margin-bottom: 2.5rem;
@@ -71,7 +72,7 @@ export const DateBnt = styled.button`
 `;
 
 const FieldContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 14% 18% 14% 15% 15% 12% 12%;
   border-top: 2px solid ${Colors.borderColor};
@@ -85,7 +86,7 @@ export const Fields = styled.div`
 `;
 
 const BottomContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 14% 18% 14% 15% 15% 12% 12%;
   border-bottom: 1px solid ${Colors.borderColor};
@@ -109,10 +110,12 @@ export const LoadingWrapper = styled.div`
 `;
 
 function TransactionManagement() {
+  const navigate = useNavigate();
   const { adminStore, modalStore } = useStores();
 
   const [isLoading, setIsLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [approv, setApprov] = useState<(number | null)[]>([]);
   const [targetOrder, setTargetOrder] = useState<Transaction>({
     id: null,
     uniqueId: null,
@@ -132,7 +135,7 @@ function TransactionManagement() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await axiosInstance.get('/admin-transactions');
+        const res = await axiosInstance.get('/admin-orders');
         adminStore.importTransList(res.data.data);
         setDisplayItem(res.data.data);
         setIsLoading(false);
@@ -149,7 +152,7 @@ function TransactionManagement() {
       }
     };
     fetchData();
-  }, [openModal]);
+  }, [approv, adminStore, modalStore]);
 
   const [displayItem, setDisplayItem] = useState<Transaction[]>([]);
   const [mode, setMode] = useState({ date: '전체', status: '전체' });
@@ -169,11 +172,15 @@ function TransactionManagement() {
       tempList = tempList.filter((el) => el.status === mode.status).reverse();
     }
     setDisplayItem(tempList);
-  }, [mode]);
+  }, [mode, transList]);
 
   const handleModal = () => {
     if (openModal) setOpenModal(false);
     else setOpenModal(true);
+  };
+
+  const handleApprov = (id: number | null) => {
+    setApprov([...approv, id]);
   };
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -182,6 +189,10 @@ function TransactionManagement() {
 
   const handleDateSel = (type: string) => {
     setMode({ ...mode, date: type });
+  };
+
+  const toDetailPage = (orderId: number | null) => {
+    navigate(`/admin/trans/id=${orderId}`);
   };
 
   return (
@@ -230,7 +241,10 @@ function TransactionManagement() {
             displayItem.map((trans, idx) => (
               <BottomContainer key={idx}>
                 <BottomContent>{trans.username}</BottomContent>
-                <BottomContent>
+                <BottomContent
+                  style={{ color: Colors.blue, textDecoration: 'underline', cursor: 'pointer' }}
+                  onClick={() => toDetailPage(trans.id)}
+                >
                   {trans.paymentDate.slice(0, 10)}-{trans.uniqueId}
                 </BottomContent>
                 <BottomContent>
@@ -256,7 +270,9 @@ function TransactionManagement() {
           ) : (
             <EmptyIndicator>거래 내역이 존재하지 않습니다.</EmptyIndicator>
           )}
-          {openModal ? <TransModal trans={targetOrder} handleModal={handleModal} /> : null}
+          {openModal ? (
+            <TransModal trans={targetOrder} handleModal={handleModal} handleApprov={handleApprov} />
+          ) : null}
         </>
       )}
     </TransactionWrapper>
