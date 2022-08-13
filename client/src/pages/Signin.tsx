@@ -140,7 +140,7 @@ function Signin({ handleSigninModal, handleSignupModal }: SigninProp) {
             .then((res) => {
               itemStore.importItemList(res.data.data);
               handleSigninModal();
-              window.location.replace('/admin');
+              window.location.replace('/admin/items');
             });
         })
         .catch((error) => {

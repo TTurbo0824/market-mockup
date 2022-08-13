@@ -53,7 +53,7 @@ export const Tag = styled.div`
 function ItemCardList({ item, handleClick }: ItemProps) {
   return (
     <Card>
-      <ItemImg src={`../images/items/${item.img}`} />
+      <ItemImg src={`/images/items/${item.img}`} />
       <div>
         <ItemName>{item.itemName}</ItemName>
         {item.status === '품절' ? <Tag>SOLDOUT</Tag> : null}

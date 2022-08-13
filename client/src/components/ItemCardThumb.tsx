@@ -7,6 +7,10 @@ type ItemProps = {
   handleClick: (item: Item) => void;
 };
 
+interface tagProp {
+  visibility: string;
+}
+
 const Card = styled.div`
   display: flex;
   justify-content: center;
@@ -47,7 +51,7 @@ const AddBnt = styled.button`
 `;
 
 const Tag = styled.div`
-  visibility: ${(props) => props.color};
+  visibility: ${(props: tagProp) => props.visibility};
   background-color: ${Colors.darkGray};
   color: white;
   margin-top: 0.5rem;
@@ -58,11 +62,11 @@ const Tag = styled.div`
 function ItemCardThumb({ item, handleClick }: ItemProps) {
   return (
     <Card>
-      <ItemImg src={`../images/items/${item.img}`} />
+      <ItemImg src={`/images/items/${item.img}`} />
       <ItemName>{item.itemName}</ItemName>
       <ItemPrice>{priceToString(item.price)}</ItemPrice>
       <AddBnt onClick={() => handleClick(item)}>장바구니 담기</AddBnt>
-      <Tag color={item.status === '품절' ? 'normal' : 'hidden'}>SOLDOUT</Tag>
+      <Tag visibility={item.status === '품절' ? 'normal' : 'hidden'}>SOLDOUT</Tag>
     </Card>
   );
 }

@@ -4,7 +4,7 @@ import { useStores } from './stores/Context';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import AdminPage from './pages/AdminPage';
+import AdminPage from './pages/AdminPage/AdminPage';
 import Mainpage from './pages/Mainpage';
 import HistoryPage from './pages/MyPage/HistoryPage';
 import HistoryDetail from './pages/MyPage/HistoryDetailPage';
@@ -88,6 +88,10 @@ function App() {
               element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
             />
             <Route
+              path='trans/:id'
+              element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
+            />
+            <Route
               path='users'
               element={userStore.getUserType === 'admin' ? <AdminPage /> : <Navigate to='/' />}
             />
@@ -98,7 +102,7 @@ function App() {
           />
           <Route
             path='/history/:id'
-            element={userStore.getUserType !== 'nonuser' ? <HistoryDetail /> : <Navigate to='/error' />}
+            element={userStore.getUserType === 'user' ? <HistoryDetail /> : <Navigate to='/error' />}
           />
           <Route
             path='/info'

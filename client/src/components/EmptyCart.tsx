@@ -24,7 +24,7 @@ export const Indicator = styled.div`
 function EmptyCart() {
   return (
     <EmptyCartContainer>
-      <EmptyCartImg src="../../images/icons/empty_cart.png" />
+      <EmptyCartImg src="/images/icons/empty_cart.png" />
       <Indicator>장바구니에 담긴 상품이 없습니다.</Indicator>
       <MainBnt />
     </EmptyCartContainer>
