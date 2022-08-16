@@ -226,8 +226,22 @@ function Cartpage() {
   };
 
   const handlePlus = (id: number) => {
-    if (!token) cartStore.plusQuantity(id);
-    else handleQuant('plus', id);
+    if (!token) {
+      const curQuant = itemQuantity.filter((el) => el.itemId === id)[0].quantity;
+
+      axiosInstance
+        .get(`/cart-item?itemId=${id}`)
+        .then((res) => {
+          const itemQuant = res.data.data.quantity;
+
+          if (itemQuant < curQuant + 1) {
+            modalStore.openModal('구매가능 수량을 초과하였습니다.');
+          } else cartStore.plusQuantity(id);
+        })
+        .catch((error) => {
+          if (error) modalStore.openModal(error.response.data.message);
+        });
+    } else handleQuant('plus', id);
   };
 
   const handleMinus = (id: number, quantity: number) => {
