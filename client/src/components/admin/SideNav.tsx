@@ -3,7 +3,7 @@ import { useStores } from '../../../src/stores/Context';
 import styled from 'styled-components';
 
 const SideNavWrapper = styled.div`
-  padding-left: 1.5rem;
+  padding-left: 1rem;
   ul {
     padding: 0;
   }
@@ -16,9 +16,11 @@ const SideNavWrapper = styled.div`
 const Menu = styled.li`
   cursor: pointer;
   list-style: none;
-  width: 100%;
+  width: 80%;
   text-align: left;
-  margin-bottom: 1rem;
+  padding: 0.5rem 0.25rem;
+  :first-of-type {
+  }
 `;
 
 function SideNav() {

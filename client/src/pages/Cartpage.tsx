@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
+import { Item } from '../stores/ItemStore';
 import styled from 'styled-components';
 import { Colors, priceToString, getDate } from '../components/utils/_var';
+import { Tag } from '../components/ItemCardList';
+import Loading from '../components/Loading';
 import EmptyCart from '../components/EmptyCart';
 import axiosInstance from '../components/utils/axiosInstance';
 
@@ -27,6 +30,12 @@ const CartContainer = styled.div`
   align-content: flex-start;
 `;
 
+const TopContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+`;
+
 const CheckAll = styled.input`
   margin-right: 0.5rem;
 `;
@@ -34,10 +43,9 @@ const CheckAll = styled.input`
 const SelDeleteBnt = styled.button`
   background-color: white;
   border: none;
-  text-decoration: underline;
-  margin-left: auto;
-  margin-right: 1rem;
-  text-align: right;
+  :last-of-type {
+    margin-right: 1rem;
+  }
 `;
 
 const ItemContainer = styled.div`
@@ -91,9 +99,9 @@ const PriceContainer = styled.div`
 
 const QuantContainer = styled.div`
   display: flex;
-  border: 1px solid ${Colors.borderColor};
+  border: 1px solid ${(props) => props.color};
   width: fit-content;
-  height: fit-content;
+  height: 1.55rem;
   align-items: center;
 `;
 
@@ -101,19 +109,19 @@ const Quant = styled.div`
   padding-right: 0.4rem;
   width: 1.75rem;
   text-align: right;
+  color: ${(props) => props.color};
 `;
 
-const QuantBnt = styled.div`
-  width: 1.3rem;
+const QuantBnt = styled.button`
+  height: 100%;
+  border: none;
+  background-color: white;
   text-align: center;
   :first-child {
-    border-right: 1px solid ${Colors.borderColor};
+    border-right: 1px solid ${(props) => props.color};
   }
   :last-child {
-    border-left: 1px solid ${Colors.borderColor};
-  }
-  :hover {
-    cursor: pointer;
+    border-left: 1px solid ${(props) => props.color};
   }
 `;
 
@@ -163,16 +171,47 @@ const SpanContainer = styled.div`
 `;
 
 function Cartpage() {
-  const { userStore } = useStores();
-  const { itemStore } = useStores();
-  const { cartStore } = useStores();
-  const { modalStore } = useStores();
-  const allCartItems = cartStore.getCartItems;
-  const itemQuantity = cartStore.getItemQuant;
-  const itemIdArr = allCartItems.map((el) => el.id);
-  const [checkedItems, setCheckedItems] = useState(itemIdArr);
-
+  const { userStore, itemStore, cartStore, modalStore } = useStores();
+  const cartItems = cartStore.getCartItems;
   const token = userStore.getUserInfo.token;
+  const itemQuantity = cartStore.getItemQuant;
+
+  const [allCartItems, setAllCartItems] = useState(!token ? cartItems : []);
+  const itemIdArr = useMemo(() => cartItems.map((el) => el.id), [cartItems]);
+  const [checkedItems, setCheckedItems] = useState(!token ? itemIdArr : []);
+  const soldOutIds = useMemo(
+    () => allCartItems.filter((el) => el.status === '품절').map((el) => el.id),
+    [allCartItems],
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        try {
+          await axiosInstance.get('/cart').then((res) => {
+            cartStore.setUpCart(res.data.cartItems, res.data.cartQuant);
+            const newCartItems = res.data.cartItems;
+            const newItemIdArr = newCartItems.map((el: Item) => el.id);
+            setAllCartItems(newCartItems);
+            setCheckedItems(newItemIdArr);
+            setIsLoading(false);
+          });
+        } catch (error) {
+          if (error instanceof Error) {
+            if (error.message.includes('404')) {
+              cartStore.setUpCart([], []);
+              setAllCartItems([]);
+              setCheckedItems([]);
+              setIsLoading(false);
+            } else modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+          }
+        }
+      };
+      fetchData();
+    }
+  }, [cartStore, token, modalStore]);
 
   const handleAllCheck = (checked: boolean) => {
     setCheckedItems(checked ? itemIdArr : []);
@@ -184,11 +223,6 @@ function Cartpage() {
     } else {
       setCheckedItems(checkedItems.filter((el) => el !== id));
     }
-  };
-
-  const handleBulkDelete = () => {
-    cartStore.removeBulk(checkedItems);
-    window.location.reload();
   };
 
   const handlePlus = (id: number) => {
@@ -208,7 +242,7 @@ function Cartpage() {
 
   const handleQuant = (type: string, itemId: number) => {
     axiosInstance
-      .patch('cart-item', { type, itemId })
+      .patch('/cart-item', { type, itemId })
       .then((res) => {
         if (res.status === 200) {
           if (type === 'plus') cartStore.plusQuantity(itemId);
@@ -233,7 +267,7 @@ function Cartpage() {
     };
 
     for (let i = 0; i < itemIdArr.length; i++) {
-      if (checkedItems.includes(itemIdArr[i])) {
+      if (checkedItems.includes(itemIdArr[i]) && !soldOutIds.includes(itemIdArr[i])) {
         let quantity = itemQuantity[i].quantity;
         let price = allCartItems[i].price * quantity;
         total.quantity += quantity;
@@ -246,7 +280,7 @@ function Cartpage() {
 
   const total = getTotalPrice();
 
-  const getPaidList = () => {
+  const getPurchaseList = () => {
     const tempList = allCartItems
       .filter((el) => checkedItems.includes(el.id))
       .map((el) => {
@@ -256,6 +290,7 @@ function Cartpage() {
           price: el.price * itemQuantity[itemIdArr.indexOf(el.id)].quantity,
           quantity: itemQuantity[itemIdArr.indexOf(el.id)].quantity,
           img: el.img,
+          stock: el.stock,
         };
 
         return tempItem;
@@ -270,29 +305,46 @@ function Cartpage() {
     } else if (allCartItems.length === 0) {
       modalStore.openModal('장바구니가 비어있습니다.');
     } else {
-      const paidList = getPaidList();
-      const curDate = getDate();
+      const purchaseList = getPurchaseList();
 
-      axiosInstance
-        .post('/order', { newOrders: paidList })
-        .then((res) => {
-          const { id, uniqueId } = res.data.data;
-          itemStore.addToPaidList(paidList, id, uniqueId, curDate, total.price);
-          handleBulkDelete();
-        })
-        .catch((error) => {
-          if (error.response.status === 401) {
-            modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
-          } else {
-            modalStore.openModal(error.response.data.message);
-          }
-        });
+      if (!purchaseList.length) {
+        modalStore.openModal('구매하실 상품을 선택해주세요.');
+      } else {
+        const curDate = getDate();
+
+        axiosInstance
+          .post('/order', { newOrders: purchaseList })
+          .then((res) => {
+            const { id, uniqueId, lowStockItem } = res.data.data;
+            itemStore.addToPaidList(purchaseList, id, uniqueId, curDate, total.price);
+            if (lowStockItem.length) {
+              modalStore.openModal(`품절 등의 사유로\n결제되지 못한 상품입니다.#${lowStockItem}`);
+            } else {
+              window.location.reload();
+            }
+          })
+          .catch((error) => {
+            if (error.response.status === 401) {
+              modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+            } else if (error.response.data.message === 'all items are soldout') {
+              modalStore.openModal('상품 품절 등의 사유로 주문\n가능한 상품이 없습니다.');
+            } else {
+              modalStore.openModal(error.response.data.message);
+            }
+          });
+      }
     }
   };
 
   const handleModal = (message: string, items: number[]) => {
-    if (allCartItems.length === 0) {
+    if (!allCartItems.length) {
       modalStore.openModal('장바구니가 비어있습니다.');
+    } else if (!items.length) {
+      if (message === '품절삭제') {
+        modalStore.openModal('품절된 상품이 없습니다.');
+      } else if (message === '선택삭제') {
+        modalStore.openModal('선택된 상품이 없습니다.');
+      }
     } else {
       modalStore.openModal(message);
       cartStore.setToBeDeleted(items);
@@ -325,32 +377,57 @@ function Cartpage() {
   return (
     <CartpageWrapper>
       <CartContainer>
-        <label>
-          <CheckAll
-            type='checkbox'
-            checked={checkedItems.length === allCartItems.length ? true : false}
-            onChange={(e) => handleAllCheck(e.target.checked)}
-          />
-          전체선택
-        </label>
-        <SelDeleteBnt onClick={() => handleModal('선택삭제', checkedItems)}>선택삭제</SelDeleteBnt>
-        {allCartItems.length !== 0 ? (
+        <TopContainer>
+          <label>
+            <CheckAll
+              type='checkbox'
+              checked={checkedItems.length === allCartItems.length ? true : false}
+              onChange={(e) => handleAllCheck(e.target.checked)}
+            />
+            전체선택
+          </label>
+          <div>
+            <SelDeleteBnt onClick={() => handleModal('품절삭제', soldOutIds)}>품절상품삭제</SelDeleteBnt>
+            <span style={{ fontSize: '0.8rem' }}>|</span>
+            <SelDeleteBnt onClick={() => handleModal('선택삭제', checkedItems)}>선택삭제</SelDeleteBnt>
+          </div>
+        </TopContainer>
+        {isLoading ? (
+          <Loading />
+        ) : allCartItems.length !== 0 ? (
           allCartItems.map((item, idx) => (
-            <ItemContainer key={idx}>
+            <ItemContainer key={item.id}>
               <CheckEach
                 type='checkbox'
                 onChange={(e) => handleEachCheck(e.target.checked, item.id)}
                 checked={checkedItems.includes(item.id)}
               />
-              <CartImg src={`../images/items/${item.img}`} />
+              <CartImg src={`/images/items/${item.img}`} />
               <DeleteBnt onClick={() => handleModal('개별삭제', [item.id])}>✕</DeleteBnt>
-              <NameDiv>{item.itemName}</NameDiv>
+              <NameDiv>
+                {item.itemName}
+                {item.status === '품절' ? <Tag style={{ marginLeft: 0 }}>SOLDOUT</Tag> : null}
+              </NameDiv>
               <PriceContainer>
                 <PriceDiv>{priceToString(item.price * itemQuantity[idx].quantity)}</PriceDiv>
-                <QuantContainer>
-                  <QuantBnt onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}>-</QuantBnt>
-                  <Quant>{itemQuantity[idx].quantity}</Quant>
-                  <QuantBnt onClick={() => handlePlus(item.id)}>+</QuantBnt>
+                <QuantContainer color={item.status === '품절' ? Colors.lightGray : Colors.mediumGray}>
+                  <QuantBnt
+                    color={item.status === '품절' ? Colors.lightGray : Colors.mediumGray}
+                    disabled={item.status === '품절' ? true : false}
+                    onClick={() => handleMinus(item.id, itemQuantity[idx].quantity)}
+                  >
+                    -
+                  </QuantBnt>
+                  <Quant color={item.status === '품절' ? Colors.lightGray : Colors.black}>
+                    {itemQuantity[idx].quantity}
+                  </Quant>
+                  <QuantBnt
+                    color={item.status === '품절' ? Colors.lightGray : Colors.mediumGray}
+                    disabled={item.status === '품절' ? true : false}
+                    onClick={() => handlePlus(item.id)}
+                  >
+                    +
+                  </QuantBnt>
                 </QuantContainer>
               </PriceContainer>
             </ItemContainer>

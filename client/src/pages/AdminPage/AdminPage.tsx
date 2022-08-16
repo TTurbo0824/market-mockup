@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import SideNav from '../components/admin/SideNav';
-import ItemManagement from '../components/admin/ItemManagement';
-import UserManagement from '../components/admin/UserManagement';
-import TransactionManagement from '../components/admin/TransactionManagement';
+import SideNav from '../../components/admin/SideNav';
+import ItemManagement from '../../components/admin/ItemManagement';
+import UserManagement from '../../components/admin/UserManagement';
+import TransactionManagement from '../../components/admin/TransactionManagement';
+import TransDetail from './TransDetailPage';
 
 const AdminPageWrapper = styled.div`
+  width: 70rem;
   min-height: calc(100vh - 136px);
   flex-wrap: wrap;
   display: grid;
   grid-area: 'sidenav page';
   grid-template-columns: 10rem 1fr;
+  margin: 0 auto;
 `;
 
 const PageWrapper = styled.div`
@@ -24,7 +27,8 @@ function AdminPage() {
   const [curContent, setCurContent] = useState<JSX.Element | null>(null);
 
   useEffect(() => {
-    const pathName = window.location.pathname.split('admin/')[1] || 'items';
+    let pathName = window.location.pathname.split('admin/')[1] || 'items';
+    if (pathName.includes('id')) pathName = 'detail';
     setCurContent(pages[pathName]);
   }, [navigate]);
 
@@ -32,6 +36,7 @@ function AdminPage() {
     items: <ItemManagement />,
     users: <UserManagement />,
     trans: <TransactionManagement />,
+    detail: <TransDetail />,
   };
 
   return (

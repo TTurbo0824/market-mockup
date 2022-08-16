@@ -13,7 +13,7 @@ import {
   BottomContent,
   EmptyIndicator,
 } from './TransactionManagement';
-// import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from '../utils/axiosInstance';
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -42,7 +42,7 @@ const EditBnt = styled.button`
 `;
 
 const FieldContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 10% 35% 11% 17% 17% 10%;
   border-top: 2px solid ${Colors.borderColor};
@@ -51,7 +51,7 @@ const FieldContainer = styled.div`
 `;
 
 const BottomContainer = styled.div`
-  width: 60rem;
+  width: 58rem;
   display: grid;
   grid-template-columns: 10% 35% 11% 17% 17% 10%;
   border-bottom: 1px solid ${Colors.borderColor};
@@ -64,57 +64,93 @@ const BntContainer = styled.div`
 
 interface ChangeItem {
   id: number | null;
-  quantity: number | null;
+  stock: number | null;
   status: string | null;
 }
 
 function ItemManagement() {
   const { itemStore, modalStore } = useStores();
   const itemList = itemStore.getItems;
-  // const itemIdArr = itemList.map((el) => el.id);
+
   const [displayItem, setDisplayItem] = useState(itemList);
 
-  // console.log(itemList);
+  const tempToBeChanged = displayItem.map((el) => {
+    return { id: el.id, stock: el.stock, status: el.status };
+  });
 
-  const stocks: number[] = itemList.map((item) => item.stock);
-  // const stocks: number[] = [];
-  // itemList.forEach((item) => stocks.push(item.stock));
-
-  const [itemStock, setItemStock] = useState(stocks);
-  const [toBeChanged, setToBeChanged] = useState<ChangeItem[]>([]);
-  // const [target, setTarget] = useState(displayItem);
-
-  const handleStock = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    setItemStock([
-      ...itemStock.slice(0, idx),
-      Number(e.target.value),
-      ...itemStock.slice(idx + 1, itemStock.length),
-    ]);
-  };
-
-  const handleEdit = () => {
-    itemStore.editItems(itemStock);
-    window.location.reload();
-  };
-
+  const [toBeChanged, setToBeChanged] = useState<ChangeItem[]>(tempToBeChanged);
+  const [idToChange, setIdToChange] = useState<any[]>([]);
   const [mode, setMode] = useState({ status: '전체' });
 
-  const status = ['전체', '판매중', '품절', '재고 8개 미만'];
+  const status = ['전체', '판매중', '품절', '재고 5개 미만'];
+  const changeStatus = ['판매중', '품절'];
   const fields = ['상품코드', '상품명', '총재고량', '재고수정', '판매상태', '누적판매량'];
 
   useEffect(() => {
     let tempList = [...itemList];
 
-    if (mode.status !== '전체' && mode.status !== '재고 8개 미만') {
+    if (mode.status !== '전체' && mode.status !== '재고 5개 미만') {
       tempList = tempList.filter((el) => el.status === mode.status);
-    } else if (mode.status === '재고 8개 미만') {
-      tempList = tempList.filter((el) => el.stock < 8);
+    } else if (mode.status === '재고 5개 미만') {
+      tempList = tempList.filter((el) => el.stock < 5);
     }
+
     setDisplayItem(tempList);
-  }, [mode]);
+    setToBeChanged(
+      tempList.map((el) => {
+        return {
+          id: el.id,
+          stock: el.stock,
+          status: el.status,
+        };
+      }),
+    );
+    setIdToChange([]);
+  }, [mode, itemList]);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMode({ status: e.target.value });
+  };
+
+  const handleEditInfo = (e: any, idx: number, type: string) => {
+    if (type === 'stock' && !Number(e.target.value) && Number(e.target.value) !== 0) {
+      modalStore.openModal('숫자만 입력해주세요.');
+    } else {
+      if (!idToChange.includes(toBeChanged[idx].id)) setIdToChange([...idToChange, toBeChanged[idx].id]);
+
+      const editTarget = {
+        id: toBeChanged[idx].id,
+        stock: type === 'stock' ? Number(e.target.value) : toBeChanged[idx].stock,
+        status: type === 'stock' ? (Number(e.target.value) === 0 ? '품절' : '판매중') : e.target.value,
+      };
+
+      setToBeChanged([
+        ...toBeChanged.slice(0, idx),
+        editTarget,
+        ...toBeChanged.slice(idx + 1, toBeChanged.length),
+      ]);
+    }
+  };
+
+  const handleEdit = () => {
+    const finalChanged = toBeChanged.filter((el) => idToChange.includes(el.id));
+
+    if (!finalChanged.length) modalStore.openModal('수정사항을 입력해주세요.');
+    else {
+      axiosInstance
+        .patch('/admin-items', { itemToChange: finalChanged })
+        .then((res) => {
+          itemStore.importItemList(res.data.data);
+          window.location.reload();
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            modalStore.openModal('장시간 미사용으로\n자동 로그아웃 처리되었습니다.');
+          } else {
+            modalStore.openModal(error.response.data.message);
+          }
+        });
+    }
   };
 
   return (
@@ -145,8 +181,22 @@ function ItemManagement() {
             <BottomContent>{item.id}</BottomContent>
             <BottomContent>{item.itemName}</BottomContent>
             <BottomContent>{item.stock}</BottomContent>
-            <StockInput onChange={(e) => handleStock(e, idx)} value={itemStock[idx]} />
-            <BottomContent>{item.status}</BottomContent>
+            <StockInput
+              onChange={(e) => handleEditInfo(e, idx, 'stock')}
+              value={toBeChanged[idx].stock?.toString()}
+            />
+            <BottomContent>
+              <select
+                value={toBeChanged[idx].status?.toString()}
+                onChange={(e) => handleEditInfo(e, idx, 'status')}
+              >
+                {changeStatus.map((el, idx) => (
+                  <option value={el} key={idx}>
+                    {el}
+                  </option>
+                ))}
+              </select>
+            </BottomContent>
             <BottomContent>{item.sold}</BottomContent>
           </BottomContainer>
         ))

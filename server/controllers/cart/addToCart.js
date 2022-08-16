@@ -1,4 +1,4 @@
-const { Cart, Item } = require('../../models');
+const { Cart } = require('../../models');
 const { isAuthorized } = require('../tokenFunctions');
 
 module.exports = async (req, res) => {
@@ -10,12 +10,6 @@ module.exports = async (req, res) => {
     }
 
     const { itemId } = req.body;
-
-    const itemInfo = await Item.findOne({ where: { id: itemId } });
-
-    if (itemInfo.status !== '판매중') {
-      return res.status(400).json({ message: 'item not available' });
-    }
 
     let newId = await Cart.findAll();
     newId = !newId.length ? 1 : newId[newId.length - 1].id + 1;

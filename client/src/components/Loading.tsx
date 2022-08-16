@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 const LoadingWrapper = styled.div`
   margin: 0 auto;
   img {
@@ -10,7 +11,7 @@ const LoadingWrapper = styled.div`
 function Loading() {
   return (
     <LoadingWrapper>
-      <img src='../images/icons/loading.gif' />
+      <img src='/images/icons/loading.gif' alt='loading-indicator' />
     </LoadingWrapper>
   );
 }

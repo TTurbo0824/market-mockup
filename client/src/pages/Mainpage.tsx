@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
 import { useQuery } from '@tanstack/react-query';
@@ -67,7 +67,7 @@ const SoldOutBnt = styled.button`
 function Mainpage() {
   const { itemStore, cartStore, userStore, modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
-  const [outInclud, setOutInclud] = useState(true);
+  const [outIncl, setOutIncl] = useState(true);
   const [displayItems, setDisplayItems] = useState<Item[]>([]);
   const allItems = itemStore.getItems;
   const allCartItems = cartStore.getCartItems;
@@ -96,13 +96,17 @@ function Mainpage() {
         itemStore.importItemList(data);
         setDisplayItems(data);
       },
+      onError: () => {
+        itemStore.importItemList([]);
+        setDisplayItems([]);
+      },
     });
 
     const { data, isLoading, error } = itemList;
 
     if (error) {
-      modalStore.openModal(String(error));
-      return <div>웹페이지를 표시하는 도중 문제가 발생했습니다.</div>;
+      modalStore.openModal(`웹페이지를 표시하는 도중${'\n'}문제가 발생했습니다.`);
+      return <div>표시할 상품이 없습니다.</div>;
     } else if (isLoading) {
       return <Loading />;
     } else if (data) {
@@ -117,13 +121,6 @@ function Mainpage() {
       );
     }
   };
-
-  useEffect(() => {
-    if (!outInclud) {
-      const newItemList = allItems.filter((el) => el.status !== '품절');
-      setDisplayItems(newItemList);
-    } else setDisplayItems(allItems);
-  }, [outInclud]);
 
   const handleClick = (item: Item) => {
     if (allCartItems.map((el) => el.itemName).includes(item.itemName)) {
@@ -158,14 +155,20 @@ function Mainpage() {
   };
 
   const handleSoldOut = () => {
-    if (outInclud) setOutInclud(false);
-    else setOutInclud(true);
+    if (outIncl) {
+      setOutIncl(false);
+      const outExclList = allItems.filter((el) => el.status !== '품절');
+      setDisplayItems(outExclList);
+    } else {
+      setOutIncl(true);
+      setDisplayItems(allItems);
+    }
   };
 
   return (
     <MainpageWrapper>
       <TopContainer>
-        <SoldOutBnt onClick={handleSoldOut}>{!outInclud ? '+ 품절상품 포함' : '- 품절상품 제외'}</SoldOutBnt>
+        <SoldOutBnt onClick={handleSoldOut}>{!outIncl ? '+ 품절상품 포함' : '- 품절상품 제외'}</SoldOutBnt>
         <ButtonContainer>
           <ViewIcon
             onClick={() => handleView('thumb')}
