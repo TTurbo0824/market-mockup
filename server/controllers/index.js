@@ -14,6 +14,7 @@ module.exports = {
   withdrawal: require('./users/withdrawal'),
   getCartItems: require('./cart/getCartItems'),
   combineCartItems: require('./cart/combineCartItems'),
+  trackQuant: require('./cart/trackQuant'),
   addToCart: require('./cart/addToCart'),
   removeFromCart: require('./cart/removeFromCart'),
   changeQuant: require('./cart/changeQuant'),

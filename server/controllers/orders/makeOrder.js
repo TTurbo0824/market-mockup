@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
       }
     });
 
-    function generateCode(length) {
+    function generateCode (length) {
       let result = '';
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       const charactersLength = characters.length;

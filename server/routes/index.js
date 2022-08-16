@@ -17,6 +17,7 @@ router.patch('/user-info', controllers.editUserInfo);
 router.delete('/withdrawal', controllers.withdrawal);
 router.get('/cart', controllers.getCartItems);
 router.post('/cart', controllers.combineCartItems);
+router.get('/cart-item', controllers.trackQuant);
 router.post('/cart-item', controllers.addToCart);
 router.delete('/cart-item', controllers.removeFromCart);
 router.patch('/cart-item', controllers.changeQuant);
