@@ -10,7 +10,6 @@ module.exports = async (req, res) => {
     }
 
     const { type, itemId } = req.body;
-    console.log(type, itemId);
 
     let curQuant = await Cart.findOne({
       where: {
@@ -27,7 +26,7 @@ module.exports = async (req, res) => {
       }
     });
 
-    if ((type === 'plus') & (curQuant + 1 > stockQuant.dataValues.stock)) {
+    if ((type === 'plus') && (curQuant + 1 > stockQuant.dataValues.stock)) {
       res.status(400).json({ message: 'your quantity exceeds current stock' });
     } else {
       await Cart.update(

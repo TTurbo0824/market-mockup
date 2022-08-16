@@ -13,12 +13,6 @@ module.exports = async (req, res) => {
 
     const { orderId, cancelRequestDate } = req.body;
 
-    let cancelOrder = await Order.findOne({
-      where: { id: orderId }
-    });
-
-    cancelOrder = Sequelize.getValues(cancelOrder);
-
     await Order.update(
       {
         status: '취소요청',

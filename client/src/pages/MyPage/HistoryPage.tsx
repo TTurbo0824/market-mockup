@@ -118,7 +118,7 @@ function HistoryPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [itemStore, modalStore]);
 
   const paidList = itemStore.getPaidList;
 
