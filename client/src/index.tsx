@@ -5,17 +5,22 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { StoreProvider } from './stores/Context';
 import RootStore from './stores/RootStore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const rootStore = new RootStore();
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+const queryClient = new QueryClient();
+
 root.render(
   <React.StrictMode>
-    <StoreProvider value={rootStore}>
-      <App />
-    </StoreProvider>
-  </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider value={rootStore}>
+        <App />
+      </StoreProvider>
+    </QueryClientProvider>
+  </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

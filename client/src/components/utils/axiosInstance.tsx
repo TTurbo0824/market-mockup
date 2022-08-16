@@ -3,6 +3,7 @@ import jwt_decode from 'jwt-decode';
 import dayjs from 'dayjs';
 
 const baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.withCredentials = true;
 
 let authTokens: any = null;
 
@@ -29,12 +30,18 @@ axiosInstance.interceptors.request.use(async (req) => {
     const isExpiredR = dayjs.unix(refresh.exp).diff(dayjs()) < 1;
 
     if (isExpired && !isExpiredR) {
-      const response = await axios.post(`${baseURL}/refreshToken`, {
+      const response = await axios.post(`${baseURL}/refresh-token`, {
         refreshToken,
       });
 
       if (response.data.data) {
-        localStorage.setItem('UserStore', JSON.stringify({ userType: 'user', userInfo: response.data.data }));
+        localStorage.setItem(
+          'UserStore',
+          JSON.stringify({
+            userType: response.data.data.isAdmin ? 'admin' : 'user',
+            userInfo: response.data.data,
+          }),
+        );
         token = response.data.data.token;
       }
       window.location.reload();
