@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
 import { Colors } from '../utils/_var';
@@ -33,7 +33,7 @@ const EditBnt = styled.button`
   cursor: pointer;
   width: 6.5rem;
   height: 2.5rem;
-  margin-top: 1.75rem;
+  margin-top: 0.75rem;
   margin-bottom: 2rem;
   font-size: 0.95rem;
   border: none;
@@ -62,6 +62,24 @@ const BntContainer = styled.div`
   text-align: center;
 `;
 
+export const PageUl = styled.ul`
+  display: flex;
+  list-style-type: none;
+  margin-top: 1.25rem;
+  padding: 0 0.5rem;
+`;
+
+export const PageLi = styled.li`
+  cursor: pointer;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  margin: auto 0.25rem;
+  text-align: center;
+  text-decoration: none;
+  background-color: ${(props) => props.color};
+`;
+
 interface ChangeItem {
   id: number | null;
   stock: number | null;
@@ -70,11 +88,22 @@ interface ChangeItem {
 
 function ItemManagement() {
   const { itemStore, modalStore } = useStores();
-  const itemList = itemStore.getItems;
+  const allItemList = itemStore.getItems;
 
-  const [displayItem, setDisplayItem] = useState(itemList);
+  const itemsPerPage = 15;
+  const [curPageInfo, setCurPageInfo] = useState({
+    items: allItemList,
+    page: 1,
+  });
 
-  const tempToBeChanged = displayItem.map((el) => {
+  const [curItems, setCurItems] = useState(allItemList.slice(0, itemsPerPage));
+
+  const pageNumbers: number[] = useMemo(
+    () => Array.from({ length: Math.ceil(curPageInfo.items.length / itemsPerPage) }, (_, i) => i + 1),
+    [curPageInfo.items],
+  );
+
+  const tempToBeChanged = curItems.map((el) => {
     return { id: el.id, stock: el.stock, status: el.status };
   });
 
@@ -87,7 +116,7 @@ function ItemManagement() {
   const fields = ['상품코드', '상품명', '총재고량', '재고수정', '판매상태', '누적판매량'];
 
   useEffect(() => {
-    let tempList = [...itemList];
+    let tempList = [...allItemList];
 
     if (mode.status !== '전체' && mode.status !== '재고 5개 미만') {
       tempList = tempList.filter((el) => el.status === mode.status);
@@ -95,9 +124,9 @@ function ItemManagement() {
       tempList = tempList.filter((el) => el.stock < 5);
     }
 
-    setDisplayItem(tempList);
+    const tempCurItems = tempList.slice(0, itemsPerPage);
     setToBeChanged(
-      tempList.map((el) => {
+      tempCurItems.map((el) => {
         return {
           id: el.id,
           stock: el.stock,
@@ -105,8 +134,39 @@ function ItemManagement() {
         };
       }),
     );
+
+    setCurItems(tempCurItems);
+    setCurPageInfo({ ...curPageInfo, page: 1, items: tempList });
     setIdToChange([]);
-  }, [mode, itemList]);
+  }, [mode, allItemList]);
+
+  const handlePagination = (number: number) => {
+    if (pageNumbers.length < 2 || curPageInfo.page === number) {
+      return;
+    }
+
+    const indexOfLastItem = number * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    setCurPageInfo({
+      ...curPageInfo,
+      page: number,
+    });
+
+    const newItemList = curPageInfo.items.slice(indexOfFirstItem, indexOfLastItem);
+
+    setCurItems(newItemList);
+
+    setToBeChanged(
+      newItemList.map((el) => {
+        return {
+          id: el.id,
+          stock: el.stock,
+          status: el.status,
+        };
+      }),
+    );
+  };
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMode({ status: e.target.value });
@@ -175,8 +235,8 @@ function ItemManagement() {
           <Fields key={idx}>{field}</Fields>
         ))}
       </FieldContainer>
-      {displayItem && displayItem.length !== 0 ? (
-        displayItem.map((item, idx) => (
+      {curItems && curItems.length !== 0 ? (
+        curItems.map((item, idx) => (
           <BottomContainer key={idx}>
             <BottomContent>{item.id}</BottomContent>
             <BottomContent>{item.itemName}</BottomContent>
@@ -203,7 +263,20 @@ function ItemManagement() {
       ) : (
         <EmptyIndicator>상품이 존재하지 않습니다.</EmptyIndicator>
       )}
-      {displayItem.length !== 0 ? (
+      <PageUl>
+        {pageNumbers.map((number) => {
+          return (
+            <PageLi
+              key={number}
+              color={curPageInfo.page === number ? Colors.lightGray : 'white'}
+              onClick={() => handlePagination(number)}
+            >
+              {number}
+            </PageLi>
+          );
+        })}
+      </PageUl>
+      {curItems.length !== 0 ? (
         <BntContainer>
           <EditBnt onClick={handleEdit}>일괄수정</EditBnt>
         </BntContainer>

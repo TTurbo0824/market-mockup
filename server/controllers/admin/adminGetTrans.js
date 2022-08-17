@@ -25,7 +25,8 @@ module.exports = async (req, res) => {
           model: User,
           attributes: ['username', 'name']
         }
-      ]
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
     allOrders = Sequelize.getValues(allOrders);
@@ -37,7 +38,6 @@ module.exports = async (req, res) => {
         username: order.User.username,
         name: order.User.name,
         status: order.status,
-        // paymentDate: order.createdAt.toISOString().slice(0, 10),
         paymentDate: order.createdAt,
         paymentAmount: order.totalPrice,
         canceledAmount: order.cancelDate ? order.totalPrice : null,

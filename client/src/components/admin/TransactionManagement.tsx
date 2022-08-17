@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStores } from '../../stores/Context';
 import styled from 'styled-components';
 import TransModal from './TransModal';
 import { Colors, priceToString, dateObj } from '../utils/_var';
+import { PageUl, PageLi } from './ItemManagement';
 import { Transaction } from '../../stores/AdminStore';
 import Loading from '../Loading';
 import axiosInstance from '../utils/axiosInstance';
@@ -109,6 +110,11 @@ export const LoadingWrapper = styled.div`
   width: 100%;
 `;
 
+interface TransObj {
+  trans: Transaction[];
+  page: number;
+}
+
 function TransactionManagement() {
   const navigate = useNavigate();
   const { adminStore, modalStore } = useStores();
@@ -130,14 +136,28 @@ function TransactionManagement() {
   });
 
   const transList = adminStore.getTransList;
+  const transPerPage = 15;
+  const [curPageInfo, setCurPageInfo] = useState<TransObj>({
+    trans: [],
+    page: 1,
+  });
+
+  const [curTrans, setCurTrans] = useState<Transaction[]>([]);
+
+  const pageNumbers: number[] = useMemo(
+    () => Array.from({ length: Math.ceil(curPageInfo.trans.length / transPerPage) }, (_, i) => i + 1),
+    [curPageInfo.trans],
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const res = await axiosInstance.get('/admin-orders');
-        adminStore.importTransList(res.data.data);
-        setDisplayItem(res.data.data);
+        const tempTrans = res.data.data;
+        adminStore.importTransList(tempTrans);
+        setCurPageInfo({ ...curPageInfo, trans: tempTrans });
+        setCurTrans(tempTrans.slice(0, transPerPage));
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
@@ -154,7 +174,6 @@ function TransactionManagement() {
     fetchData();
   }, [approv, adminStore, modalStore]);
 
-  const [displayItem, setDisplayItem] = useState<Transaction[]>([]);
   const [mode, setMode] = useState({ date: '전체', status: '전체' });
   const status = ['전체', '결제완료', '취소요청', '결제취소', '취소거절'];
   const dates = ['전체', '오늘', '1주', '1개월', '3개월'];
@@ -171,8 +190,10 @@ function TransactionManagement() {
     if (mode.status !== '전체') {
       tempList = tempList.filter((el) => el.status === mode.status).reverse();
     }
-    setDisplayItem(tempList);
-  }, [mode, transList]);
+    const tempCurTrans = tempList.slice(0, transPerPage);
+    setCurTrans(tempCurTrans);
+    setCurPageInfo({ page: 1, trans: tempList });
+  }, [mode]);
 
   const handleModal = () => {
     if (openModal) setOpenModal(false);
@@ -193,6 +214,24 @@ function TransactionManagement() {
 
   const toDetailPage = (orderId: number | null) => {
     navigate(`/admin/trans/id=${orderId}`);
+  };
+
+  const handlePagination = (number: number) => {
+    if (pageNumbers.length < 2 || curPageInfo.page === number) {
+      return;
+    }
+
+    const indexOfLastTran = number * transPerPage;
+    const indexOfFirstTran = indexOfLastTran - transPerPage;
+
+    setCurPageInfo({
+      ...curPageInfo,
+      page: number,
+    });
+
+    const newTransList = curPageInfo.trans.slice(indexOfFirstTran, indexOfLastTran);
+
+    setCurTrans(newTransList);
   };
 
   return (
@@ -237,8 +276,8 @@ function TransactionManagement() {
               <Fields key={idx}>{field}</Fields>
             ))}
           </FieldContainer>
-          {displayItem && displayItem.length !== 0 ? (
-            displayItem.map((trans, idx) => (
+          {curTrans && curTrans.length !== 0 ? (
+            curTrans.map((trans, idx) => (
               <BottomContainer key={idx}>
                 <BottomContent>{trans.username}</BottomContent>
                 <BottomContent
@@ -275,6 +314,19 @@ function TransactionManagement() {
           ) : null}
         </>
       )}
+      <PageUl>
+        {pageNumbers.map((number) => {
+          return (
+            <PageLi
+              key={number}
+              color={curPageInfo.page === number ? Colors.lightGray : 'white'}
+              onClick={() => handlePagination(number)}
+            >
+              {number}
+            </PageLi>
+          );
+        })}
+      </PageUl>
     </TransactionWrapper>
   );
 }
