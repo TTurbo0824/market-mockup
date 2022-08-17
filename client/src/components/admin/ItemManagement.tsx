@@ -33,7 +33,7 @@ const EditBnt = styled.button`
   cursor: pointer;
   width: 6.5rem;
   height: 2.5rem;
-  margin-top: 1.75rem;
+  margin-top: 0.75rem;
   margin-bottom: 2rem;
   font-size: 0.95rem;
   border: none;
@@ -62,13 +62,14 @@ const BntContainer = styled.div`
   text-align: center;
 `;
 
-const PageUl = styled.ul`
+export const PageUl = styled.ul`
   display: flex;
-  justify-content: center;
   list-style-type: none;
+  margin-top: 1.25rem;
+  padding: 0 0.5rem;
 `;
 
-const PageLi = styled.li`
+export const PageLi = styled.li`
   cursor: pointer;
   width: 1.5rem;
   height: 1.5rem;
@@ -97,14 +98,10 @@ function ItemManagement() {
 
   const [curItems, setCurItems] = useState(allItemList.slice(0, itemsPerPage));
 
-  let pageNumbers: number[] = []
-  
-  pageNumbers = useMemo(() => {
-    for (let i = 1; i <= Math.ceil(curPageInfo.items.length / itemsPerPage); i++) {
-      pageNumbers.push(i);
-    }
-    return pageNumbers;
-  }, [curPageInfo.items]);
+  const pageNumbers: number[] = useMemo(
+    () => Array.from({ length: Math.ceil(curPageInfo.items.length / itemsPerPage) }, (_, i) => i + 1),
+    [curPageInfo.items],
+  );
 
   const tempToBeChanged = curItems.map((el) => {
     return { id: el.id, stock: el.stock, status: el.status };
@@ -143,7 +140,11 @@ function ItemManagement() {
     setIdToChange([]);
   }, [mode, allItemList]);
 
-  const handleClick = (number: number) => {
+  const handlePagination = (number: number) => {
+    if (pageNumbers.length < 2 || curPageInfo.page === number) {
+      return;
+    }
+
     const indexOfLastItem = number * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
@@ -268,7 +269,7 @@ function ItemManagement() {
             <PageLi
               key={number}
               color={curPageInfo.page === number ? Colors.lightGray : 'white'}
-              onClick={() => handleClick(number)}
+              onClick={() => handlePagination(number)}
             >
               {number}
             </PageLi>

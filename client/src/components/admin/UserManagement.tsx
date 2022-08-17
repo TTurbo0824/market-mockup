@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../../stores/Context';
 import { User } from '../../stores/AdminStore';
 import styled from 'styled-components';
@@ -15,6 +15,7 @@ import {
   EmptyIndicator,
   LoadingWrapper,
 } from './TransactionManagement';
+import { PageUl, PageLi } from './ItemManagement';
 import Loading from '../Loading';
 import axiosInstance from '../utils/axiosInstance';
 
@@ -41,6 +42,11 @@ const BottomContainer = styled.div`
   border-bottom: 1px solid ${Colors.borderColor};
 `;
 
+interface UserObj {
+  users: User[];
+  page: number;
+}
+
 function UserManagement() {
   const { adminStore, modalStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,8 +56,10 @@ function UserManagement() {
       setIsLoading(true);
       try {
         const res = await axiosInstance.get('/admin-users');
-        adminStore.importUserList(res.data.data);
-        setDisplayItem(res.data.data);
+        const tempUsers = res.data.data;
+        adminStore.importUserList(tempUsers);
+        setCurPageInfo({ ...curPageInfo, users: tempUsers });
+        setCurUsers(tempUsers.slice(0, userPerPage));
         setIsLoading(false);
       } catch (error) {
         if (error instanceof Error) {
@@ -66,15 +74,27 @@ function UserManagement() {
       }
     };
     fetchData();
-  }, [adminStore, modalStore]);
+  }, []);
 
   const userList = adminStore.getUserList;
 
-  const [displayItem, setDisplayItem] = useState<User[]>([]);
   const [mode, setMode] = useState({ date: '전체', status: '전체' });
   const status = ['전체', '정상', '휴면', '이용제한'];
   const dates = ['전체', '오늘', '1주', '1개월', '3개월'];
   const fields = ['회원번호', '아이디', '이름', '가입일', '가입상태', '주문총액', '휴면전환일'];
+
+  const userPerPage = 15;
+  const [curPageInfo, setCurPageInfo] = useState<UserObj>({
+    users: [],
+    page: 1,
+  });
+
+  const [curUsers, setCurUsers] = useState<User[]>([]);
+
+  const pageNumbers: number[] = useMemo(
+    () => Array.from({ length: Math.ceil(curPageInfo.users.length / userPerPage) }, (_, i) => i + 1),
+    [curPageInfo.users],
+  );
 
   useEffect(() => {
     const today = new Date();
@@ -87,8 +107,10 @@ function UserManagement() {
     if (mode.status !== '전체') {
       tempList = tempList.filter((el) => el.userStatus === mode.status);
     }
-    setDisplayItem(tempList);
-  }, [mode, userList]);
+    const tempCurTrans = tempList.slice(0, userPerPage);
+    setCurUsers(tempCurTrans);
+    setCurPageInfo({ page: 1, users: tempList });
+  }, [mode]);
 
   const handleDateSel = (type: string) => {
     setMode({ ...mode, date: type });
@@ -96,6 +118,24 @@ function UserManagement() {
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMode({ ...mode, status: e.target.value });
+  };
+
+  const handlePagination = (number: number) => {
+    if (pageNumbers.length < 2 || curPageInfo.page === number) {
+      return;
+    }
+
+    const indexOfLastTran = number * userPerPage;
+    const indexOfFirstTran = indexOfLastTran - userPerPage;
+
+    setCurPageInfo({
+      ...curPageInfo,
+      page: number,
+    });
+
+    const newUsersList = curPageInfo.users.slice(indexOfFirstTran, indexOfLastTran);
+
+    setCurUsers(newUsersList);
   };
 
   return (
@@ -140,8 +180,8 @@ function UserManagement() {
               <Fields key={idx}>{field}</Fields>
             ))}
           </FieldContainer>
-          {displayItem && displayItem.length !== 0 ? (
-            displayItem.map((user, idx) => (
+          {curUsers && curUsers.length !== 0 ? (
+            curUsers.map((user, idx) => (
               <BottomContainer key={idx}>
                 <BottomContent>{user.id}</BottomContent>
                 <BottomContent>{user.username}</BottomContent>
@@ -157,6 +197,19 @@ function UserManagement() {
           )}
         </>
       )}
+      <PageUl>
+        {pageNumbers.map((number) => {
+          return (
+            <PageLi
+              key={number}
+              color={curPageInfo.page === number ? Colors.lightGray : 'white'}
+              onClick={() => handlePagination(number)}
+            >
+              {number}
+            </PageLi>
+          );
+        })}
+      </PageUl>
     </UserWrapper>
   );
 }
