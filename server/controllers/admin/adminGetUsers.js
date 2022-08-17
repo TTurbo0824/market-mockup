@@ -27,7 +27,8 @@ module.exports = async (req, res) => {
           attributes: ['totalPrice']
         }
       ],
-      attributes: ['id', 'username', 'name', 'status', 'createdAt']
+      attributes: ['id', 'username', 'name', 'status', 'createdAt'],
+      order: [['createdAt', 'DESC']]
     });
 
     const getTotalPrice = (prices) => {
