@@ -188,7 +188,7 @@ function TransactionManagement() {
       tempList = transList.filter((el) => Date.parse(el.paymentDate) > today.getTime() - dateObj[mode.date]);
     }
     if (mode.status !== '전체') {
-      tempList = tempList.filter((el) => el.status === mode.status).reverse();
+      tempList = tempList.filter((el) => el.status === mode.status);
     }
     const tempCurTrans = tempList.slice(0, transPerPage);
     setCurTrans(tempCurTrans);

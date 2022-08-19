@@ -29,13 +29,14 @@ function Footer() {
   return (
     <FooterWrapper>
       <Link
-        className="link"
-        href="https://github.com/TTurbo0824/market-mockup"
-        target="_blank"
-        rel="noopener noreferrer">
+        className='link'
+        href='https://github.com/TTurbo0824/market-mockup'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
         Project Repository Link
       </Link>
-      <Copyright className="copyright">
+      <Copyright className='copyright'>
         copyright &copy; {new Date().getFullYear()} Kyungjoo Ha All rights reserved.
       </Copyright>
     </FooterWrapper>
