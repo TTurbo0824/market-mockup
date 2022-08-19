@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useStores } from '../../../src/stores/Context';
+import { Colors } from '../utils/_var';
 import styled from 'styled-components';
 
 const SideNavWrapper = styled.div`
@@ -8,7 +9,6 @@ const SideNavWrapper = styled.div`
     padding: 0;
   }
   a {
-    color: black;
     text-decoration: none;
   }
 `;
@@ -16,15 +16,23 @@ const SideNavWrapper = styled.div`
 const Menu = styled.li`
   cursor: pointer;
   list-style: none;
-  width: 80%;
-  text-align: left;
-  padding: 0.5rem 0.25rem;
+  width: fit-content;
+  margin: 0.9rem 0.25rem;
+  padding-bottom: 0.15rem;
+  color: ${Colors.gray};
   :first-of-type {
+    margin-top: 1.25rem;
+    
+  }
+  :not(:last-of-type) {
+    border-bottom: 4px solid ${(props) => props.color};
+    font-weight: ${(props) => (props.color !== 'white' ? 'bold' : 'normal')};
   }
 `;
 
 function SideNav() {
   const { userStore } = useStores();
+  const curPath = window.location.pathname.split('/admin/')[1];
 
   const navObj: { [key: string]: string } = {
     items: '상품 관리',
@@ -43,13 +51,15 @@ function SideNav() {
   return (
     <SideNavWrapper>
       <ul>
-        {navMenu.map((menu, idx) =>
+        {navMenu.map((menu) =>
           menu !== 'signout' ? (
-            <Menu key={idx}>
-              <NavLink to={`${menu}`}>{navObj[menu]}</NavLink>
+            <Menu key={menu} color={curPath === menu ? Colors.blue : 'white'}>
+              <NavLink to={`${menu}`} style={{ color: curPath === menu ? 'black' : Colors.gray }}>
+                {navObj[menu]}
+              </NavLink>
             </Menu>
           ) : (
-            <Menu key={idx} onClick={handleSignout}>
+            <Menu key={menu} onClick={handleSignout}>
               {navObj[menu]}
             </Menu>
           ),
