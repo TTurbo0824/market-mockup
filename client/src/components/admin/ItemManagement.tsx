@@ -65,7 +65,7 @@ const BntContainer = styled.div`
 export const PageUl = styled.ul`
   display: flex;
   list-style-type: none;
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   padding: 0 0.5rem;
 `;
 
