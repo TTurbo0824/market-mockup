@@ -95,6 +95,14 @@ const DetailBnt = styled.button`
   padding: 0.25rem 0.75rem;
 `;
 
+const SearchInput = styled.input`
+  width: 25rem;
+  height: 2rem;
+  margin: 0 auto 1rem 0;
+  border: 1px solid ${Colors.borderColor};
+  padding: 0.25rem;
+`;
+
 function HistoryPage() {
   const navigate = useNavigate();
   const { itemStore, modalStore } = useStores();
@@ -129,6 +137,7 @@ function HistoryPage() {
   return (
     <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
+      <SearchInput placeholder='주문한 상품 검색' />
       {isLoading ? (
         <Loading />
       ) : paidList && paidList.length !== 0 ? (
