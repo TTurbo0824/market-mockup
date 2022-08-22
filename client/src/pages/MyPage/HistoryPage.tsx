@@ -95,12 +95,33 @@ const DetailBnt = styled.button`
   padding: 0.25rem 0.75rem;
 `;
 
-const SearchInput = styled.input`
-  width: 25rem;
-  height: 2rem;
+const SearchContainer = styled.div`
   margin: 0 auto 1rem 0;
+  width: 25rem;
+  height: 2.5rem;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   border: 1px solid ${Colors.borderColor};
-  padding: 0.25rem;
+  border-radius: 5px;
+  padding: 0.25rem 0.5rem;
+  input:focus {
+    outline: none;
+  }
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  height: 2rem;
+  font-size: 1rem;
+  border: none;
+`;
+
+const SearchIcon = styled.img`
+  cursor: pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.25rem;
 `;
 
 function HistoryPage() {
@@ -137,7 +158,10 @@ function HistoryPage() {
   return (
     <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
-      <SearchInput placeholder='주문한 상품 검색' />
+      <SearchContainer>
+        <SearchInput placeholder='주문한 상품 검색' />
+        <SearchIcon src='./images/icons/search-icon.jpg' alt='search-icon' />
+      </SearchContainer>
       {isLoading ? (
         <Loading />
       ) : paidList && paidList.length !== 0 ? (
