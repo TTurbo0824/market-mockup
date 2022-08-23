@@ -22,6 +22,7 @@ router.post('/cart-item', controllers.addToCart);
 router.delete('/cart-item', controllers.removeFromCart);
 router.patch('/cart-item', controllers.changeQuant);
 router.get('/order', controllers.getOrders);
+router.get('/order/:search', controllers.orderSearch);
 router.post('/order', controllers.makeOrder);
 router.patch('/order', controllers.cancelRequest);
 
