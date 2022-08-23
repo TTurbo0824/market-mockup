@@ -113,7 +113,7 @@ const SearchContainer = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   height: 2rem;
-  font-size: 1rem;
+  font-size: .9rem;
   border: none;
 `;
 
@@ -128,6 +128,7 @@ function HistoryPage() {
   const navigate = useNavigate();
   const { itemStore, modalStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchContent, setSearchContent] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,11 +156,15 @@ function HistoryPage() {
     navigate(`/history/id=${orderId}`);
   };
 
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchContent(e.target.value);
+  };
+
   return (
     <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
       <SearchContainer>
-        <SearchInput placeholder='주문한 상품 검색' />
+        <SearchInput placeholder='주문한 상품 검색' onChange={handleInput} value={searchContent} />
         <SearchIcon src='./images/icons/search-icon.jpg' alt='search-icon' />
       </SearchContainer>
       {isLoading ? (
