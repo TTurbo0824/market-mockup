@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../../stores/Context';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import SearchResults from '../MyPage/SearchResults';
 import { Colors, priceToString } from '../../components/utils/_var';
 import Loading from '../../components/Loading';
 import MainBnt from '../../components/MainBnt';
@@ -27,7 +28,7 @@ export const TitleDiv = styled.div`
   font-weight: bold;
 `;
 
-const HistoryContainer = styled.div`
+export const HistoryContainer = styled.div`
   width: 100%;
   height: fit-content;
   border: 1px solid ${Colors.borderColor};
@@ -41,21 +42,21 @@ const HistoryContainer = styled.div`
   }
 `;
 
-const LeftContainer = styled.div`
+export const LeftContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
 
-const TopContainer = styled.div`
+export const TopContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
 
-const OrderInfo = styled.div`
+export const OrderInfo = styled.div`
   margin-bottom: 0.75rem;
 `;
 
-const ItemContainer = styled.div`
+export const ItemContainer = styled.div`
   width: 100%;
   display: grid;
   grid-template-areas: 'img itemname' 'img price';
@@ -64,16 +65,16 @@ const ItemContainer = styled.div`
   padding: 0.5rem;
 `;
 
-const ItemImg = styled.img`
+export const ItemImg = styled.img`
   grid-area: img;
   width: 4rem;
 `;
 
-const ItemName = styled.div`
+export const ItemName = styled.div`
   grid-area: itemname;
 `;
 
-const TotalPrice = styled.div`
+export const TotalPrice = styled.div`
   grid-area: price;
 `;
 
@@ -85,11 +86,11 @@ const EmptyContainer = styled.div`
   justify-content: center;
 `;
 
-const RightContainer = styled.div`
+export const RightContainer = styled.div`
   margin: auto 0.75rem;
 `;
 
-const DetailBnt = styled.button`
+export const DetailBnt = styled.button`
   border: 1px solid ${Colors.borderColor};
   background-color: white;
   padding: 0.25rem 0.75rem;
@@ -113,7 +114,7 @@ const SearchContainer = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   height: 2rem;
-  font-size: .9rem;
+  font-size: 0.9rem;
   border: none;
 `;
 
@@ -129,6 +130,8 @@ function HistoryPage() {
   const { itemStore, modalStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
   const [searchContent, setSearchContent] = useState('');
+  const [searched, setSearched] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,8 +159,31 @@ function HistoryPage() {
     navigate(`/history/id=${orderId}`);
   };
 
+  const getSearchResults = useMemo(
+    () => <SearchResults searchResults={searchResults} toDetailPage={toDetailPage} />,
+    [searchResults],
+  );
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchContent(e.target.value);
+  };
+
+  const handleSearchBntClick = () => {
+    setSearched(true);
+    if (searchContent) {
+      axiosInstance
+        .get(`/order/search?q=${searchContent}`)
+        .then((res) => {
+          setSearchResults(res.data.data);
+        })
+        .catch((error) => {
+          if (error.response.data.message === 'no orders found') {
+            setSearchResults([]);
+          } else {
+            modalStore.openModal(error.response.data.message);
+          }
+        });
+    }
   };
 
   return (
@@ -165,11 +191,11 @@ function HistoryPage() {
       <TitleDiv>주문 내역</TitleDiv>
       <SearchContainer>
         <SearchInput placeholder='주문한 상품 검색' onChange={handleInput} value={searchContent} />
-        <SearchIcon src='./images/icons/search-icon.jpg' alt='search-icon' />
+        <SearchIcon onClick={handleSearchBntClick} src='./images/icons/search-icon.jpg' alt='search-icon' />
       </SearchContainer>
       {isLoading ? (
         <Loading />
-      ) : paidList && paidList.length !== 0 ? (
+      ) : paidList && paidList.length !== 0 && !searched ? (
         paidList.map((el, idx) => (
           <HistoryContainer key={idx}>
             <LeftContainer>
@@ -196,6 +222,8 @@ function HistoryPage() {
             </RightContainer>
           </HistoryContainer>
         ))
+      ) : searched ? (
+        getSearchResults
       ) : (
         <EmptyContainer>
           <Indicator>아직 주문한 내역이 없습니다.</Indicator>
