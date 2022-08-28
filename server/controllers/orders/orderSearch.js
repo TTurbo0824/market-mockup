@@ -8,21 +8,13 @@ module.exports = async (req, res) => {
   try {
     const accessTokenData = isAuthorized(req);
 
-    // if (!accessTokenData) {
-    //   return res.status(401).json({ message: "You're not logged in" });
-    // }
+    if (!accessTokenData) {
+      return res.status(401).json({ message: "You're not logged in" });
+    }
 
-    // const { id } = accessTokenData;
-
-    const id = 1;
+    const { id } = accessTokenData;
 
     const searchWord = req.query.q;
-
-    console.log(searchWord);
-
-    // if (!allOrders.length) {
-    //   return res.status(404).json({ message: 'no orders found' });
-    // }
 
     let allOrders = await Order.findAll({
       where: { userId: id }
@@ -34,25 +26,29 @@ module.exports = async (req, res) => {
 
     allOrders = Sequelize.getValues(allOrders);
 
-    const orderIds = [];
+    const tempOrderIds = [];
 
     allOrders.forEach((order) => {
-      orderIds.push(order.id);
+      tempOrderIds.push(order.id);
     });
 
     const tempItemList = {};
 
     const getOrderItems = async () => {
       await Promise.all(
-        orderIds.map(async (el) => {
+        tempOrderIds.map(async (el) => {
           let orderItems = await OrderItem.findAll({
             include: [
               {
                 model: Item,
                 attributes: ['itemName', 'price', 'category', 'img'],
                 where: {
-                  itemName: {[Op.like]: `%${searchWord}%`}
+                  itemName: { [Op.like]: `%${searchWord}%` }
                 }
+              },
+              {
+                model: Order,
+                attributes: ['id', 'uniqueId', 'status']
               }
             ],
             where: {
@@ -61,10 +57,10 @@ module.exports = async (req, res) => {
           });
 
           orderItems = Sequelize.getValues(orderItems);
-          console.log('✨👀✨👀✨👀✨👀');
-          console.log(orderItems);
+
           orderItems = orderItems.map((item) => {
             return {
+              orderId: item.Order.id,
               itemId: item.itemId,
               itemName: item.Item.itemName,
               img: item.Item.img,
@@ -79,18 +75,21 @@ module.exports = async (req, res) => {
         const fullItemList = [];
 
         allOrders.forEach((order) => {
-          fullItemList.push({
-            id: order.id,
-            uniqueId: order.uniqueId,
-            status: order.status,
-            totalPrice: order.totalPrice,
-            date: order.createdAt.toISOString().slice(0, 10),
-            cancelRequestDate: order.cancelRequestDate,
-            cancelDate: order.cancelDate,
-            items: tempItemList[order.id]
-          });
+          if (tempItemList[order.id].length > 0) {
+            fullItemList.push({
+              id: order.id,
+              uniqueId: order.uniqueId,
+              status: order.status,
+              totalPrice: order.totalPrice,
+              date: order.createdAt.toISOString().slice(0, 10),
+              cancelRequestDate: order.cancelRequestDate,
+              cancelDate: order.cancelDate,
+              items: tempItemList[order.id]
+            });
+          }
         });
-        res.status(200).json({ data: fullItemList.reverse(), message: 'ok' });
+        if (fullItemList.length) return res.status(200).json({ data: fullItemList, message: 'ok' });
+        else return res.status(404).json({ message: 'no orders found' });
       });
     };
 
