@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../../stores/Context';
 import { useNavigate } from 'react-router-dom';
+import { KeyboardEvent } from 'react';
 import styled from 'styled-components';
 import SearchResults from '../MyPage/SearchResults';
 import { Colors, priceToString } from '../../components/utils/_var';
 import Loading from '../../components/Loading';
 import MainBnt from '../../components/MainBnt';
-import { Indicator } from '../../components/EmptyCart';
 import axiosInstance from '../../components/utils/axiosInstance';
 
 const HistoryWrapper = styled.div`
@@ -97,7 +97,15 @@ export const DetailBnt = styled.button`
 `;
 
 const SearchContainer = styled.div`
-  margin: 0 auto 1rem 0;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const SearchBar = styled.div`
+  margin-right: 0.5rem;
   width: 25rem;
   height: 2.5rem;
   display: flex;
@@ -111,10 +119,34 @@ const SearchContainer = styled.div`
   }
 `;
 
-const SearchInput = styled.input`
-  width: 100%;
+type SearchProps = {
+  width: string;
+};
+
+const SearchInput = styled.input<SearchProps>`
+  width: ${(props) => props.width};
   height: 2rem;
   font-size: 0.9rem;
+  margin-right: 0.5rem;
+  border: none;
+`;
+
+const ResetIcon = styled.div`
+  cursor: pointer;
+  background-color: ${Colors.mediumGray};
+  color: white;
+  border-radius: 20px;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1rem;
+  text-align: center;
+  margin-right: 0.5rem;
+`;
+
+const ResetBnt = styled.button`
+  height: 100%;
+  color: white;
+  background-color: ${Colors.blue};
   border: none;
 `;
 
@@ -123,6 +155,12 @@ const SearchIcon = styled.img`
   width: 1.25rem;
   height: 1.25rem;
   margin-right: 0.25rem;
+`;
+
+export const Indicator = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 2rem;
 `;
 
 function HistoryPage() {
@@ -169,8 +207,8 @@ function HistoryPage() {
   };
 
   const handleSearchBntClick = () => {
-    setSearched(true);
     if (searchContent) {
+      setSearched(true);
       axiosInstance
         .get(`/order/search?q=${searchContent}`)
         .then((res) => {
@@ -183,15 +221,41 @@ function HistoryPage() {
             modalStore.openModal(error.response.data.message);
           }
         });
+    } else alert('검색어를 입력해주세요');
+  };
+
+  const handleResetIconClick = () => {
+    setSearchContent('');
+  };
+
+  const enterKeyPressed = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchBntClick();
     }
+  };
+
+  const handleReset = () => {
+    window.location.reload();
   };
 
   return (
     <HistoryWrapper>
       <TitleDiv>주문 내역</TitleDiv>
       <SearchContainer>
-        <SearchInput placeholder='주문한 상품 검색' onChange={handleInput} value={searchContent} />
-        <SearchIcon onClick={handleSearchBntClick} src='./images/icons/search-icon.jpg' alt='search-icon' />
+        <SearchBar>
+          <SearchInput
+            width={!searchContent ? '25rem' : '20rem'}
+            placeholder='주문한 상품 검색'
+            onChange={handleInput}
+            value={searchContent}
+            onKeyPress={enterKeyPressed}
+          />
+          <ResetIcon style={{ display: !searchContent ? 'none' : 'block' }} onClick={handleResetIconClick}>
+            ×
+          </ResetIcon>
+          <SearchIcon onClick={handleSearchBntClick} src='./images/icons/search-icon.jpg' alt='search-icon' />
+        </SearchBar>
+        <ResetBnt onClick={handleReset}>검색 초기화</ResetBnt>
       </SearchContainer>
       {isLoading ? (
         <Loading />

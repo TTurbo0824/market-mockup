@@ -1,7 +1,6 @@
-// import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { priceToString } from '../../components/utils/_var';
-import { Indicator } from '../../components/EmptyCart';
+import { Indicator } from './HistoryPage';
 import {
   HistoryContainer,
   LeftContainer,
@@ -28,9 +27,6 @@ type ResultProp = {
 };
 
 function SearchResults({ searchResults, toDetailPage }: ResultProp) {
-  console.log(searchResults);
-  console.log('✨👀✨👀✨👀✨👀');
-
   return (
     <SearchResultWrapper>
       {searchResults.length ? (
