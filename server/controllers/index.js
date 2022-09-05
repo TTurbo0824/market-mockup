@@ -19,6 +19,7 @@ module.exports = {
   removeFromCart: require('./cart/removeFromCart'),
   changeQuant: require('./cart/changeQuant'),
   getOrders: require('./orders/getOrders'),
+  orderSearch: require('./orders/orderSearch'),
   makeOrder: require('./orders/makeOrder'),
   cancelRequest: require('./orders/cancelRequest')
 };
