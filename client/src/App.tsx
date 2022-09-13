@@ -58,18 +58,18 @@ function App() {
 
   return (
     <AppWrapper>
-      <FixedContainer>
-        <Header />
-      </FixedContainer>
-      <SpacingDiv />
-      {modalInfo.open ? <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} /> : null}
-      {openSignin ? (
-        <Signin handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
-      ) : null}
-      {openSignup ? (
-        <Signup handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
-      ) : null}
       <BrowserRouter>
+        <FixedContainer>
+          <Header />
+        </FixedContainer>
+        <SpacingDiv />
+        {modalInfo.open ? <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} /> : null}
+        {openSignin ? (
+          <Signin handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
+        ) : null}
+        {openSignup ? (
+          <Signup handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
+        ) : null}
         <Routes>
           <Route
             path='/'
