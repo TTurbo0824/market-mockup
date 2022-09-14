@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import ItemCardThumb from '../components/ItemCardThumb';
 import ItemCardList from '../components/ItemCardList';
-import { Item } from '../stores/ItemStore';
+import { Item } from '../interface/Item';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBorderAll, faListSquares } from '@fortawesome/free-solid-svg-icons';
 import Loading from '../components/Loading';

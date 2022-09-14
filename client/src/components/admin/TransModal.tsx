@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ModalBackdrop } from '../Modal';
 import { CloseBnt } from '../../pages/Signin';
 import { Colors, priceToString } from '../utils/_var';
-import { Transaction } from '../../stores/AdminStore';
+import { Transaction } from '../../interface/Admin';
 import axiosInstance from '../utils/axiosInstance';
 
 const TransModalView = styled.div`

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
-import { Item } from '../stores/ItemStore';
+import { Item } from '../interface/Item';
 import styled from 'styled-components';
 import { Colors, priceToString, getDate } from '../components/utils/_var';
 import { Tag } from '../components/ItemCardList';

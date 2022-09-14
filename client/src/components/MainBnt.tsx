@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from './utils/_var';
 
@@ -9,11 +10,14 @@ const Bnt = styled.button`
 `;
 
 function MainBnt() {
+  const navigate = useNavigate();
+
   return (
     <Bnt
       onClick={() => {
-        window.location.replace('/');
-      }}>
+        navigate('/');
+      }}
+    >
       메인으로 이동
     </Bnt>
   );

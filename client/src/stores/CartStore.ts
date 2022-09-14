@@ -1,12 +1,8 @@
 import { action, makeAutoObservable, computed, toJS } from 'mobx';
 import { makePersistable } from 'mobx-persist-store';
 import RootStore from './RootStore';
-import { Item } from '../stores/ItemStore';
-
-export interface ItemQuant {
-  itemId: number;
-  quantity: number;
-}
+import { Item } from '../interface/Item';
+import { ItemQuant } from '../interface/Cart';
 
 export default class CartStore {
   constructor(RootStore: RootStore) {
@@ -19,13 +15,13 @@ export default class CartStore {
       minusQuantity: action,
       setToBeDeleted: action,
       getCartItems: computed,
-      getItemQuant: computed
+      getItemQuant: computed,
     });
 
     makePersistable(this, {
       name: 'CartStore',
       properties: ['cartItems', 'cartItemQuant', 'toBeDeleted'],
-      storage: window.localStorage
+      storage: window.localStorage,
     });
   }
 

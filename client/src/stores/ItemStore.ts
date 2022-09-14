@@ -1,36 +1,7 @@
 import { makeAutoObservable, computed, toJS, action } from 'mobx';
 import { makePersistable } from 'mobx-persist-store';
 import RootStore from './RootStore';
-
-export interface Item {
-  id: number;
-  itemName: string;
-  price: number;
-  category: string;
-  img: string;
-  stock: number;
-  status: string;
-  sold: number;
-}
-
-export interface PaidItem {
-  id: number;
-  itemName: string;
-  price: number;
-  quantity: number;
-  img: string;
-}
-
-interface PaidList {
-  id: number;
-  uniqueId: string;
-  status: string;
-  date: string;
-  totalPrice: number;
-  items: PaidItem[];
-  cancelRequestDate: string | null;
-  cancelDate: string | null;
-}
+import { Item, PaidItem, PaidList } from '../interface/Item';
 
 export default class ItemStore {
   constructor(RootStore: RootStore) {
