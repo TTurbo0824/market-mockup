@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import TransModal from './TransModal';
 import { Colors, priceToString, dateObj } from '../utils/_var';
 import { PageUl, PageLi } from './ItemManagement';
-import { Transaction } from '../../stores/AdminStore';
+import { Transaction } from '../../interface/Admin';
 import Loading from '../Loading';
 import axiosInstance from '../utils/axiosInstance';
 

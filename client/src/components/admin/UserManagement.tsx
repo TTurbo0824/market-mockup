@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useStores } from '../../stores/Context';
-import { User } from '../../stores/AdminStore';
+import { User } from '../../interface/Admin';
 import styled from 'styled-components';
 import { Colors, priceToString, dateObj } from '../utils/_var';
 import {

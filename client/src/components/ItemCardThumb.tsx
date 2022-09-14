@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Item } from '../stores/ItemStore';
+import { Item } from '../interface/Item';
 import { Colors, priceToString } from './utils/_var';
 
 type ItemProps = {
