@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import MainBnt from './MainBnt';
+import MainBnt from '../../../components/MainBnt';
 
 const EmptyCartContainer = styled.div`
   width: 100%;
