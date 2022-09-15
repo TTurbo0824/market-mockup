@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useStores } from '../../stores/Context';
+import { useStores } from '../../../../stores/Context';
 import styled from 'styled-components';
-import { Colors } from '../utils/_var';
+import { Colors } from '../../../../components/utils/_var';
 import { observer } from 'mobx-react';
 import {
   PageTitle,
@@ -13,7 +13,7 @@ import {
   BottomContent,
   EmptyIndicator,
 } from './TransactionManagement';
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from '../../../../components/utils/axiosInstance';
 
 const ItemWrapper = styled.div`
   display: flex;

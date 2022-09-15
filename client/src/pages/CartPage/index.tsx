@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useStores } from '../stores/Context';
+import { useStores } from '../../stores/Context';
 import { observer } from 'mobx-react';
-import { Item } from '../interface/Item';
+import { Item } from '../../interface/Item';
 import styled from 'styled-components';
-import { Colors, priceToString, getDate } from '../components/utils/_var';
-import { Tag } from '../components/ItemCardList';
-import Loading from '../components/Loading';
-import EmptyCart from '../components/EmptyCart';
-import axiosInstance from '../components/utils/axiosInstance';
+import { Colors, priceToString, getDate } from '../../components/utils/_var';
+import { Tag } from '../MainPage/components/ItemCardList';
+import Loading from '../../components/Loading';
+import EmptyCart from './components/EmptyCart';
+import axiosInstance from '../../components/utils/axiosInstance';
 
 const CartpageWrapper = styled.div`
   width: 60rem;

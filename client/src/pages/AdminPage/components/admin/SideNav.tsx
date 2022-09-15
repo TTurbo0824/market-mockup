@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { useStores } from '../../../src/stores/Context';
-import { Colors } from '../utils/_var';
+import { useStores } from '../../../../stores/Context';
+import { Colors } from '../../../../components/utils/_var';
 import styled from 'styled-components';
 
 const SideNavWrapper = styled.div`

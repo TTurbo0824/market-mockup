@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Item } from '../interface/Item';
-import { Colors, priceToString } from './utils/_var';
+import { Item } from '../../../interface/Item';
+import { Colors, priceToString } from '../../../components/utils/_var';
 
 type ItemProps = {
   item: Item;

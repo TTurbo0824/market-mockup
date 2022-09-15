@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useStores } from '../../stores/Context';
-import { User } from '../../interface/Admin';
+import { useStores } from '../../../../stores/Context';
+import { User } from '../../../../interface/Admin';
 import styled from 'styled-components';
-import { Colors, priceToString, dateObj } from '../utils/_var';
+import { Colors, priceToString, dateObj } from '../../../../components/utils/_var';
 import {
   PageTitle,
   TopContainer,
@@ -16,8 +16,8 @@ import {
   LoadingWrapper,
 } from './TransactionManagement';
 import { PageUl, PageLi } from './ItemManagement';
-import Loading from '../Loading';
-import axiosInstance from '../utils/axiosInstance';
+import Loading from '../../../../components/Loading';
+import axiosInstance from '../../../../components/utils/axiosInstance';
 
 const UserWrapper = styled.div`
   display: flex;
