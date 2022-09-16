@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AdminPage from './pages/AdminPage';
 import Mainpage from './pages/MainPage';
+import ItemPage from './pages/ItemPage';
 import HistoryPage from './pages/MyPage/HistoryPage';
 import HistoryDetail from './pages/MyPage/HistoryDetailPage';
 import InfoPage from './pages/MyPage/InfoPage';
@@ -74,6 +75,10 @@ function App() {
           <Route
             path='/'
             element={userStore.getUserType !== 'admin' ? <Mainpage /> : <Navigate to='/admin' />}
+          />
+          <Route
+            path='/item/:id'
+            element={userStore.getUserType === 'user' ? <ItemPage /> : <Navigate to='/error' />}
           />
           <Route
             path='/admin'
