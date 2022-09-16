@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useStores } from '../stores/Context';
 import styled from 'styled-components';
 import { Colors } from './utils/_var';
@@ -75,6 +76,8 @@ export type ModalProps = {
 };
 
 function Modal({ handleModal, handleSigninModal }: ModalProps) {
+  const navigate = useNavigate();
+
   const { modalStore, cartStore, userStore, itemStore } = useStores();
   const token = userStore.getUserInfo.token;
 
@@ -82,12 +85,12 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
 
   const goToCart = () => {
     handleModal();
-    window.location.replace('/cart');
+    navigate('/cart');
   };
 
   const goToMain = () => {
     handleModal();
-    window.location.replace('/');
+    navigate('/');
   };
 
   const handleDelete = () => {
@@ -226,7 +229,7 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
             <ModalBnt
               onClick={() => {
                 handleModal();
-                window.location.replace('/');
+                navigate('/');
               }}
             >
               닫기

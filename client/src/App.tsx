@@ -4,12 +4,12 @@ import { useStores } from './stores/Context';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import AdminPage from './pages/AdminPage/AdminPage';
-import Mainpage from './pages/Mainpage';
+import AdminPage from './pages/AdminPage';
+import Mainpage from './pages/MainPage';
 import HistoryPage from './pages/MyPage/HistoryPage';
 import HistoryDetail from './pages/MyPage/HistoryDetailPage';
 import InfoPage from './pages/MyPage/InfoPage';
-import Cartpage from './pages/Cartpage';
+import Cartpage from './pages/CartPage';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import Modal from './components/Modal';
@@ -58,18 +58,18 @@ function App() {
 
   return (
     <AppWrapper>
-      <FixedContainer>
-        <Header />
-      </FixedContainer>
-      <SpacingDiv />
-      {modalInfo.open ? <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} /> : null}
-      {openSignin ? (
-        <Signin handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
-      ) : null}
-      {openSignup ? (
-        <Signup handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
-      ) : null}
       <BrowserRouter>
+        <FixedContainer>
+          <Header />
+        </FixedContainer>
+        <SpacingDiv />
+        {modalInfo.open ? <Modal handleModal={handleModal} handleSigninModal={handleSigninModal} /> : null}
+        {openSignin ? (
+          <Signin handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
+        ) : null}
+        {openSignup ? (
+          <Signup handleSigninModal={handleSigninModal} handleSignupModal={handleSignupModal} />
+        ) : null}
         <Routes>
           <Route
             path='/'

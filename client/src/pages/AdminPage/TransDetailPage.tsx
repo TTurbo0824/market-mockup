@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useStores } from '../../stores/Context';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
-import { PaidItem } from '../../stores/ItemStore';
+import { PaidItem } from '../../interface/Item';
 import { Colors, priceToString } from '../../components/utils/_var';
 import Loading from '../../components/Loading';
 import axiosInstance from '../../components/utils/axiosInstance';

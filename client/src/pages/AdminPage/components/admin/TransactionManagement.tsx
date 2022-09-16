@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStores } from '../../stores/Context';
+import { useStores } from '../../../../stores/Context';
 import styled from 'styled-components';
 import TransModal from './TransModal';
-import { Colors, priceToString, dateObj } from '../utils/_var';
+import { Colors, priceToString, dateObj } from '../../../../components/utils/_var';
 import { PageUl, PageLi } from './ItemManagement';
-import { Transaction } from '../../stores/AdminStore';
-import Loading from '../Loading';
-import axiosInstance from '../utils/axiosInstance';
+import { Transaction } from '../../../../interface/Admin';
+import Loading from '../../../../components/Loading';
+import axiosInstance from '../../../../components/utils/axiosInstance';
 
 const TransactionWrapper = styled.div`
   display: flex;

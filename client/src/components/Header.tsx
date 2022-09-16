@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStores } from '../stores/Context';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
@@ -66,6 +67,8 @@ export type HeaderProps = {
 };
 
 function Header() {
+  const navigate = useNavigate();
+
   const { userStore, cartStore, modalStore } = useStores();
   const allCart = cartStore.getCartItems;
   const [showMenu, setShowMenu] = useState(false);
@@ -81,11 +84,17 @@ function Header() {
   const myMenu = [
     {
       menu: '주문내역',
-      onClick: () => window.location.replace('/history'),
+      onClick: () => {
+        navigate('/history');
+        setShowMenu(false);
+      },
     },
     {
       menu: '회원정보',
-      onClick: () => window.location.replace('/info'),
+      onClick: () => {
+        navigate('/info');
+        setShowMenu(false);
+      },
     },
     {
       menu: '로그아웃',

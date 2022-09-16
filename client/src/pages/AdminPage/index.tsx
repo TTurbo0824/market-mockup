@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import SideNav from '../../components/admin/SideNav';
-import ItemManagement from '../../components/admin/ItemManagement';
-import UserManagement from '../../components/admin/UserManagement';
-import TransactionManagement from '../../components/admin/TransactionManagement';
+import SideNav from './components/admin/SideNav';
+import ItemManagement from './components/admin/ItemManagement';
+import UserManagement from './components/admin/UserManagement';
+import TransactionManagement from './components/admin/TransactionManagement';
 import TransDetail from './TransDetailPage';
 
 const AdminPageWrapper = styled.div`

@@ -1,10 +1,10 @@
-import { useStores } from '../../stores/Context';
+import { useStores } from '../../../../stores/Context';
 import styled from 'styled-components';
-import { ModalBackdrop } from '../Modal';
-import { CloseBnt } from '../../pages/Signin';
-import { Colors, priceToString } from '../utils/_var';
-import { Transaction } from '../../stores/AdminStore';
-import axiosInstance from '../utils/axiosInstance';
+import { ModalBackdrop } from '../../../../components/Modal';
+import { CloseBnt } from '../../../Signin';
+import { Colors, priceToString } from '../../../../components/utils/_var';
+import { Transaction } from '../../../../interface/Admin';
+import axiosInstance from '../../../../components/utils/axiosInstance';
 
 const TransModalView = styled.div`
   position: relative;
