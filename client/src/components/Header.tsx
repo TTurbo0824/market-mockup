@@ -84,11 +84,17 @@ function Header() {
   const myMenu = [
     {
       menu: '주문내역',
-      onClick: () => navigate('/history'),
+      onClick: () => {
+        navigate('/history');
+        setShowMenu(false);
+      },
     },
     {
       menu: '회원정보',
-      onClick: () => navigate('/info'),
+      onClick: () => {
+        navigate('/info');
+        setShowMenu(false);
+      },
     },
     {
       menu: '로그아웃',

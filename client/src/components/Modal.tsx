@@ -132,7 +132,7 @@ function Modal({ handleModal, handleSigninModal }: ModalProps) {
 
   const signout = () => {
     localStorage.clear();
-    navigate('/');
+    window.location.replace('/');
   };
 
   const handleWithdrawal = () => {
