@@ -1,13 +1,9 @@
 import styled from 'styled-components';
-import { Item } from '../../../interface/Item';
+import { ItemCardProps } from '../../../interface/Item';
 import { Colors, priceToString } from '../../../components/utils/_var';
 
-type ItemProps = {
-  item: Item;
-  handleClick: (item: Item) => void;
-};
-
 const Card = styled.div`
+  cursor: pointer;
   width: 65rem;
   display: grid;
   grid-template-areas: 'img itemName price cart';
@@ -50,9 +46,9 @@ export const Tag = styled.div`
   font-size: 0.75rem;
 `;
 
-function ItemCardList({ item, handleClick }: ItemProps) {
+function ItemCardList({ item, handleClick, goToDetailPage }: ItemCardProps) {
   return (
-    <Card>
+    <Card onClick={goToDetailPage}>
       <ItemImg src={`/images/items/${item.img}`} />
       <div>
         <ItemName>{item.itemName}</ItemName>

@@ -1,5 +1,6 @@
 module.exports = {
   items: require('./items/getItems'),
+  itemDetail: require('./items/getItemDetail'),
   adminItems: require('./admin/adminGetItems'),
   adminEditItems: require('./admin/adminEditItems'),
   adminUsers: require('./admin/adminGetUsers'),

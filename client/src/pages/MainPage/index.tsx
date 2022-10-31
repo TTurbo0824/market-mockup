@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStores } from '../../stores/Context';
 import { observer } from 'mobx-react';
 import { useQuery } from '@tanstack/react-query';
@@ -65,6 +66,8 @@ const SoldOutBnt = styled.button`
 `;
 
 function Mainpage() {
+  const navigate = useNavigate();
+
   const { itemStore, cartStore, userStore, modalStore } = useStores();
   const [viewType, setViewType] = useState('thumb');
   const [outIncl, setOutIncl] = useState(true);
@@ -86,6 +89,10 @@ function Mainpage() {
       } else if (res.status === 404) {
         return [];
       }
+    };
+
+    const goToDetailPage = (itemId: number) => {
+      navigate(`/item/id=${itemId}`);
     };
 
     const itemList = useQuery(['itemData'], fetchItemData, {
@@ -113,8 +120,27 @@ function Mainpage() {
       return displayItems.length ? (
         displayItems.map((item) => {
           if (viewType === 'thumb') {
-            return <ItemCardThumb key={item.id} item={item} handleClick={handleClick} />;
-          } else return <ItemCardList key={item.id} item={item} handleClick={handleClick} />;
+            return (
+              <ItemCardThumb
+                key={item.id}
+                goToDetailPage={() => {
+                  goToDetailPage(item.id);
+                }}
+                item={item}
+                handleClick={handleClick}
+              />
+            );
+          } else
+            return (
+              <ItemCardList
+                key={item.id}
+                goToDetailPage={() => {
+                  goToDetailPage(item.id);
+                }}
+                item={item}
+                handleClick={handleClick}
+              />
+            );
         })
       ) : (
         <div>표시할 상품이 없습니다.</div>

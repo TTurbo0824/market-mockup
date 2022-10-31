@@ -3,6 +3,7 @@ const router = express.Router();
 const controllers = require('../controllers');
 
 router.get('/items', controllers.items);
+router.get('/item', controllers.itemDetail);
 router.get('/admin-items', controllers.adminItems);
 router.patch('/admin-items', controllers.adminEditItems);
 router.get('/admin-users', controllers.adminUsers);

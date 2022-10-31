@@ -1,17 +1,13 @@
 import styled from 'styled-components';
-import { Item } from '../../../interface/Item';
+import { ItemCardProps } from '../../../interface/Item';
 import { Colors, priceToString } from '../../../components/utils/_var';
-
-type ItemProps = {
-  item: Item;
-  handleClick: (item: Item) => void;
-};
 
 interface tagProp {
   visibility: string;
 }
 
 const Card = styled.div`
+  cursor: pointer;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -59,9 +55,9 @@ const Tag = styled.div`
   font-size: 0.75rem;
 `;
 
-function ItemCardThumb({ item, handleClick }: ItemProps) {
+function ItemCardThumb({ item, handleClick, goToDetailPage }: ItemCardProps) {
   return (
-    <Card>
+    <Card onClick={goToDetailPage}>
       <ItemImg src={`/images/items/${item.img}`} />
       <ItemName>{item.itemName}</ItemName>
       <ItemPrice>{priceToString(item.price)}</ItemPrice>

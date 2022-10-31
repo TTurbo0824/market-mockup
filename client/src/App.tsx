@@ -78,7 +78,7 @@ function App() {
           />
           <Route
             path='/item/:id'
-            element={userStore.getUserType === 'user' ? <ItemPage /> : <Navigate to='/error' />}
+            element={userStore.getUserType !== 'admin' ? <ItemPage /> : <Navigate to='/error' />}
           />
           <Route
             path='/admin'
