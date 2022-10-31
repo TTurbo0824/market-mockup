@@ -27,3 +27,9 @@ export interface PaidList {
   cancelRequestDate: string | null;
   cancelDate: string | null;
 }
+
+export interface ItemCardProps {
+  item: Item;
+  handleClick: (item: Item) => void;
+  goToDetailPage: () => void;
+}
