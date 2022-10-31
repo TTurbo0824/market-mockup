@@ -9,17 +9,24 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "You're not logged in" });
     }
 
-    const { itemId } = req.body;
+    const { itemId, quantity } = req.body;
 
     let newId = await Cart.findAll();
     newId = !newId.length ? 1 : newId[newId.length - 1].id + 1;
 
-    const payload = {
-      id: newId,
-      userId: accessTokenData.id,
-      itemId,
-      quantity: 1
-    };
+    const payload = !quantity
+      ? {
+          id: newId,
+          userId: accessTokenData.id,
+          itemId,
+          quantity: 1
+        }
+      : {
+          id: newId,
+          userId: accessTokenData.id,
+          itemId,
+          quantity
+        };
 
     await Cart.create(payload);
 
