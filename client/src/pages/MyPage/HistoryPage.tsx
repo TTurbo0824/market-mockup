@@ -3,7 +3,7 @@ import { useStores } from '../../stores/Context';
 import { useNavigate } from 'react-router-dom';
 import { KeyboardEvent } from 'react';
 import styled from 'styled-components';
-import SearchResults from '../MyPage/SearchResults';
+import SearchResults from './SearchResults';
 import { Colors, priceToString } from '../../components/utils/_var';
 import Loading from '../../components/Loading';
 import MainBnt from '../../components/MainBnt';
