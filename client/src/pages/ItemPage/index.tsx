@@ -137,7 +137,6 @@ function ItemPage() {
         setCurItem(res.data.data);
         setIsLoading(false);
       } catch (error: any) {
-        console.log(error);
         if (error.response.data.message === 'item not found') {
           window.location.replace('/error');
         } else {
